@@ -6,6 +6,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	HDC hdc;
 	TCHAR greeting[] = _T("Hello, World!");
 
+
 	switch (message)
 	{
 	case WM_PAINT:
