@@ -1,3 +1,5 @@
+#define LOG_ON
+
 #include "includs.h"
 #include "names.h"
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -5,6 +7,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	PAINTSTRUCT ps;
 	HDC hdc;
 	TCHAR greeting[] = _T("Hello, World!");
+
 
 	switch (message)
 	{
@@ -16,6 +19,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		EndPaint(hWnd, &ps);
 		break;
 	case WM_DESTROY:
+		LogSend(LOG_INFO, "main", "Закрытие приложения");
 		PostQuitMessage(0);
 		break;
 	default:
@@ -28,6 +32,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 //регестрируем класс окна
 bool RegWindowClass(HINSTANCE hInstance)
 {
+	LogSend(LOG_INFO, "main", "Регестрация класса окна");
 	WNDCLASSEX window;
 	window.cbSize = sizeof(WNDCLASSEX);
 	window.style = CS_HREDRAW | CS_VREDRAW;
@@ -52,16 +57,19 @@ int WINAPI WinMain(HINSTANCE hInstance,
 	if (!RegWindowClass(hInstance))
 	{
 		MessageBox(NULL, L"Ошибка создания окна!", L"Ошибка регестрации класса окна", NULL);
+		LogSend(LOG_CRITICAL_ERROR, "main", "Ошибка регестрации класса окна");
 		return 1;
 	}
 	//дискриптор окна
 	HWND h_wnd;
 	//создаем окно
+	LogSend(LOG_INFO, "main", "Создание окна");
 	h_wnd = CreateWindow(GAME_NAME, GAME_NAME, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT,window_width, window_height, NULL, NULL, hInstance, NULL);
 	//проверяем создано ли окно
 	if (!h_wnd)
 	{
 		MessageBox(NULL, L"Ошибка создания окна!", L"Ошибка дискриптора окна", NULL);
+		LogSend(LOG_CRITICAL_ERROR, "main", "Ошибка создания окна");
 		return 2;
 	}
 	//отображаем окно
