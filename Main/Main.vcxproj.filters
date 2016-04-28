@@ -28,7 +28,7 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Library Include="..\Debug\loger.lib" />
     <Library Include="..\Debug\vCONTROL.lib" />
+    <Library Include="..\Debug\loger.lib" />
   </ItemGroup>
 </Project>
