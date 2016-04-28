@@ -12,11 +12,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	switch (message)
 	{
 	case WM_PAINT:
-		hdc = BeginPaint(hWnd, &ps);
-		TextOut(hdc,
-			5, 5,
-			greeting, _tcslen(greeting));
-		EndPaint(hWnd, &ps);
 		break;
 	case WM_DESTROY:
 		LogSend(LOG_INFO, "main", "«акрытие приложени€");
@@ -64,7 +59,7 @@ int WINAPI WinMain(HINSTANCE hInstance,
 	HWND h_wnd;
 	//создаем окно
 	LogSend(LOG_INFO, "main", "—оздание окна");
-	h_wnd = CreateWindow(GAME_NAME, GAME_NAME, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT,window_width, window_height, NULL, NULL, hInstance, NULL);
+	h_wnd = CreateWindow(GAME_NAME, GAME_NAME, WS_CLIPSIBLINGS | WS_CLIPCHILDREN, CW_USEDEFAULT, CW_USEDEFAULT,window_width, window_height, NULL, NULL, hInstance, NULL);
 	//провер€ем создано ли окно
 	if (!h_wnd)
 	{
@@ -72,10 +67,13 @@ int WINAPI WinMain(HINSTANCE hInstance,
 		LogSend(LOG_CRITICAL_ERROR, "main", "ќшибка создани€ окна");
 		return 2;
 	}
+	bool error = 0;
+	vCONTROL v_control(h_wnd, &error);
 	//отображаем окно
 	ShowWindow(h_wnd, nCmdShow);
 	//обновл€ем окно
 	UpdateWindow(h_wnd);
+	v_control.StartRendering();
 	//получение сообщений
 	MSG msg;
 	while (GetMessage(&msg, NULL, 0, 0))
