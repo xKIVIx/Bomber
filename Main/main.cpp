@@ -58,8 +58,7 @@ int WINAPI WinMain(HINSTANCE hInstance,
 	//дискриптор окна
 	HWND h_wnd;
 	//создаем окно
-	LogSend(LOG_INFO, "main", "Создание окна");
-	h_wnd = CreateWindow(GAME_NAME, GAME_NAME, WS_CLIPSIBLINGS | WS_CLIPCHILDREN, CW_USEDEFAULT, CW_USEDEFAULT,window_width, window_height, NULL, NULL, hInstance, NULL);
+	h_wnd = CreateWindow(GAME_NAME, GAME_NAME, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT,window_width, window_height, NULL, NULL, hInstance, NULL);
 	//проверяем создано ли окно
 	if (!h_wnd)
 	{
