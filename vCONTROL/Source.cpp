@@ -3,12 +3,13 @@
 #include "vCONTROL.h"
 #include <thread>
 #include <log_error.h>
+#include <mutex>
+#include <thread>
 #include <gl\GL.h>
 //function init pixel format
-bool InitPixelFormat(HDC h_dc)
+bool  InitPixelFormat(HDC h_dc)
 {
-	LogSend(LOG_INFO, "vCONTROL", "init pixel format");
-	PIXELFORMATDESCRIPTOR pixel_setting = {0};
+	PIXELFORMATDESCRIPTOR pixel_setting = { 0 };
 	pixel_setting.nSize = sizeof(PIXELFORMATDESCRIPTOR);
 	pixel_setting.nVersion = 1;
 	pixel_setting.dwFlags = PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER | PFD_DRAW_TO_WINDOW;
@@ -19,51 +20,57 @@ bool InitPixelFormat(HDC h_dc)
 	int pixel_format = ChoosePixelFormat(h_dc, &pixel_setting);
 	if (!pixel_format)
 	{
-		LogSend(LOG_CRITICAL_ERROR, "vCONTROL", "couldn`t chouse pixel format");
 		return 1;
 	}
 	if (!SetPixelFormat(h_dc, pixel_format, &pixel_setting))
 	{
-		LogSend(LOG_CRITICAL_ERROR, "vCONTROL", "couldn`t init pixel format");
 		return 1;
 	}
 	return 0;
 }
-
-vCONTROL::vCONTROL(HWND h_wnd, bool * error)
+//rendering finction
+void vCONTROL_API vCONTROL::ResizeWindow(int rect_x, int rect_y)
+{
+	glViewport(0, 0, rect_x, rect_y);
+}
+void vCONTROL_API vCONTROL::Rend()
+{
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glBegin(GL_TRIANGLES);
+	glVertex3f(-0.5f, 0.0f, 0.0f);
+	glVertex3f(0.5f, 0.5f, 0.0f);
+	glVertex3f(-0.5f, 0.5f, 0.0f);
+	glEnd();
+	SwapBuffers(h_dc);
+}
+//set class function
+vCONTROL_API vCONTROL::vCONTROL (HWND h_wnd)
 {
 	h_dc = GetDC(h_wnd);
-	*error = InitPixelFormat(h_dc);
-	if (!*error)
-		return;
-	LogSend(LOG_INFO, "vCONTROL", "Create context OpenGl");
+	InitPixelFormat(h_dc);
 	h_rc = wglCreateContext(h_dc);
 	if (!h_rc)
 	{
-		LogSend(LOG_CRITICAL_ERROR, "vCONTROL", "Couldn`t create context OpenGl");
-		*error = 1;
-		return;
+		MessageBox(NULL, L"Ошибка создания окна!", L"init1", NULL);
+		SendMessage(h_wnd, WM_DESTROY,NULL,NULL);
 	}
 	if (!wglMakeCurrent(h_dc, h_rc))
 	{
-		LogSend(LOG_CRITICAL_ERROR, "vCONTROL", "Couldn`t make current context OpenGl");
-		*error = 1;
+		MessageBox(NULL, L"Ошибка создания окна!", L"init2", NULL);
+		SendMessage(h_wnd, WM_DESTROY, NULL, NULL);
 		return;
 	}
 }
-vCONTROL::~vCONTROL()
+vCONTROL_API vCONTROL::~vCONTROL()
 {
-	wglMakeCurrent(h_dc, NULL);
-	wglDeleteContext(h_rc);
-	h_rc = 0;
+	if (h_rc)
+	{
+		wglMakeCurrent(h_dc, NULL);
+		wglDeleteContext(h_rc);
+		h_rc = 0;
+	}
 }
-void RendScen(HDC h_dc)
+void vCONTROL_API vCONTROL::ChangeState(int state)
 {
-	LogSend(LOG_INFO, "vCONTROL", "Rend");
-	glClear(GL_COLOR_BUFFER_BIT);
-	SwapBuffers(h_dc);
-}
-void vCONTROL::StartRendering()
-{
-	RendScen(h_dc);
+	now_state = state;
 }

@@ -15,14 +15,13 @@
 class vCONTROL_API vCONTROL
 {
 public:
-	vCONTROL(HWND h_wnd,bool * error);
-	~vCONTROL();
-	void StartRendering();
-	void StopRendering();
+	vCONTROL(HWND h_wnd);
 	void ChangeState(int state);
+	~vCONTROL();
+	void Rend();
+	void ResizeWindow(int rect_x, int rect_y);
 private:
 	HDC h_dc;
 	HGLRC h_rc;
-	bool end_render = 0;
-	int state = STATE_LOADING;
+	int now_state = STATE_LOADING;
 };

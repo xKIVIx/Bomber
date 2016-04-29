@@ -20,11 +20,11 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source.cpp">
-      <Filter>Resource Files</Filter>
-    </ClCompile>
+    <Library Include="..\Debug\loger.lib" />
   </ItemGroup>
   <ItemGroup>
-    <Library Include="..\Debug\loger.lib" />
+    <ClCompile Include="Source.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
