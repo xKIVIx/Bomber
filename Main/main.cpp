@@ -2,23 +2,19 @@
 
 #include "includs.h"
 #include "names.h"
+vCONTROL * _v_control;
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	PAINTSTRUCT ps;
-	HDC hdc;
-	TCHAR greeting[] = _T("Hello, World!");
-
-
 	switch (message)
 	{
 	case WM_PAINT:
-		hdc = BeginPaint(hWnd, &ps);
-		TextOut(hdc,
-			5, 5,
-			greeting, _tcslen(greeting));
-		EndPaint(hWnd, &ps);
+		_v_control->Rend();
+		break;
+	case WM_SIZE:
+		_v_control->ResizeWindow(LOWORD(lParam), HIWORD(lParam));
 		break;
 	case WM_DESTROY:
+		_v_control->~vCONTROL();
 		LogSend(LOG_INFO, "main", "Закрытие приложения");
 		PostQuitMessage(0);
 		break;
@@ -29,7 +25,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 	return 0;
 }
-//регестрируем класс окна
+//reg window class
 bool RegWindowClass(HINSTANCE hInstance)
 {
 	LogSend(LOG_INFO, "main", "Регестрация класса окна");
@@ -53,30 +49,30 @@ int WINAPI WinMain(HINSTANCE hInstance,
 	LPSTR lpCmdLine,
 	int nCmdShow)
 {
-	//регестрируем класс окна
 	if (!RegWindowClass(hInstance))
 	{
-		MessageBox(NULL, L"Ошибка создания окна!", L"Ошибка регестрации класса окна", NULL);
-		LogSend(LOG_CRITICAL_ERROR, "main", "Ошибка регестрации класса окна");
+		MessageBox(NULL, L"Error create window!", L"Error registr window`s class", NULL);
+		LogSend(LOG_CRITICAL_ERROR, "main", "Error registr window`s class");
 		return 1;
 	}
-	//дискриптор окна
+	//window`s description
 	HWND h_wnd;
-	//создаем окно
-	LogSend(LOG_INFO, "main", "Создание окна");
+	//create window
 	h_wnd = CreateWindow(GAME_NAME, GAME_NAME, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT,window_width, window_height, NULL, NULL, hInstance, NULL);
-	//проверяем создано ли окно
+	//chek create
 	if (!h_wnd)
 	{
-		MessageBox(NULL, L"Ошибка создания окна!", L"Ошибка дискриптора окна", NULL);
-		LogSend(LOG_CRITICAL_ERROR, "main", "Ошибка создания окна");
+		MessageBox(NULL, L"Error create window!", L"Error window`s desctription", NULL);
+		LogSend(LOG_CRITICAL_ERROR, "main", "Error window`s desctription");
 		return 2;
 	}
-	//отображаем окно
+	bool error = 0;
+	_v_control = new vCONTROL(h_wnd);
+	//show window
 	ShowWindow(h_wnd, nCmdShow);
-	//обновляем окно
+	//update window
 	UpdateWindow(h_wnd);
-	//получение сообщений
+	//get message
 	MSG msg;
 	while (GetMessage(&msg, NULL, 0, 0))
 	{
