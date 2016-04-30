@@ -1,18 +1,25 @@
 #define LOG_ON
-
-#include "includs.h"
+#include <vCONTROL\vCONTROL.h>
+#include <mCONTROL\mCONTROL.h>
+#include <stCONTROL\stCONTROL.h>
 #include "names.h"
 vCONTROL * _v_control;
+mCONTROL * _m_control;
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	switch (message)
 	{
 	case WM_PAINT:
-		_v_control->Rend();
+		_v_control->Rend(LOWORD(wParam));
 		break;
-	case WM_KEYDOWN:
 	case WM_SIZE:
 		_v_control->ResizeWindow(LOWORD(lParam), HIWORD(lParam));
+		break;
+	case WM_RBUTTONDOWN:
+		_m_control->MouseRightDown(NULL, NULL);
+		break;
+	case WM_LBUTTONDOWN:
+		_m_control->MouseLeftDown(NULL, NULL);
 		break;
 	case WM_DESTROY:
 		_v_control->~vCONTROL();
@@ -69,6 +76,7 @@ int WINAPI WinMain(HINSTANCE hInstance,
 	}
 	bool error = 0;
 	_v_control = new vCONTROL(h_wnd);
+	_m_control = new mCONTROL(h_wnd, NULL, NULL, NULL);
 	//show window
 	SetWindowLong(h_wnd, GWL_STYLE, WS_POPUP);//Устанавливаем новые стили
 	SetWindowLong(h_wnd, GWL_EXSTYLE, WS_EX_TOPMOST);

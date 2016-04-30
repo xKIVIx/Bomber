@@ -159,6 +159,7 @@
   </ItemGroup>
   <ItemGroup>
     <Library Include="..\Debug\loger.lib" />
+    <Library Include="..\Debug\vMENUS.lib" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

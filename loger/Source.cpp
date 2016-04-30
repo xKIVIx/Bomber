@@ -5,7 +5,6 @@
 #include "log_error.h"
 #include <fstream>
 #include <time.h>
-#include <Windows.h>
 
 
 
