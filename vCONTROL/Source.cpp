@@ -2,7 +2,7 @@
 #define vCONTROL_DLL
 #include "vCONTROL.h"
 #include <thread>
-#include <log_error.h>
+#include <loger\log_error.h>
 #include <mutex>
 #include <thread>
 #include <gl\GL.h>
@@ -51,12 +51,14 @@ vCONTROL_API vCONTROL::vCONTROL (HWND h_wnd)
 	h_rc = wglCreateContext(h_dc);
 	if (!h_rc)
 	{
-		MessageBox(NULL, L"Ошибка создания окна!", L"init1", NULL);
+		MessageBox(NULL, L"Error init OpenGL!", L"Error create context", NULL);
+		LogSend(LOG_CRITICAL_ERROR,"vCONTROL","Error create context");
 		SendMessage(h_wnd, WM_DESTROY,NULL,NULL);
 	}
 	if (!wglMakeCurrent(h_dc, h_rc))
 	{
-		MessageBox(NULL, L"Ошибка создания окна!", L"init2", NULL);
+		MessageBox(NULL, L"Error init OpenGL!", L"Error meke current context", NULL);
+		LogSend(LOG_CRITICAL_ERROR, "vCONTROL", "Error meke current context");
 		SendMessage(h_wnd, WM_DESTROY, NULL, NULL);
 		return;
 	}
@@ -69,8 +71,4 @@ vCONTROL_API vCONTROL::~vCONTROL()
 		wglDeleteContext(h_rc);
 		h_rc = 0;
 	}
-}
-void vCONTROL_API vCONTROL::ChangeState(int state)
-{
-	now_state = state;
 }

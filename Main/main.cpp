@@ -10,6 +10,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_PAINT:
 		_v_control->Rend();
 		break;
+	case WM_KEYDOWN:
 	case WM_SIZE:
 		_v_control->ResizeWindow(LOWORD(lParam), HIWORD(lParam));
 		break;
@@ -69,7 +70,9 @@ int WINAPI WinMain(HINSTANCE hInstance,
 	bool error = 0;
 	_v_control = new vCONTROL(h_wnd);
 	//show window
-	ShowWindow(h_wnd, nCmdShow);
+	SetWindowLong(h_wnd, GWL_STYLE, WS_POPUP);//Устанавливаем новые стили
+	SetWindowLong(h_wnd, GWL_EXSTYLE, WS_EX_TOPMOST);
+	ShowWindow(h_wnd, SW_SHOWMAXIMIZED);//Окно во весь экран
 	//update window
 	UpdateWindow(h_wnd);
 	//get message
