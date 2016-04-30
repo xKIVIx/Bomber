@@ -1,6 +1,7 @@
 #include <Windows.h>
 #include <tchar.h>
-#include <log_error.h>
 #include <gl\GL.h>
-#include <vCONTROL.h>
+#include <loger\log_error.h>
+#include <vCONTROL\vCONTROL.h>
+#include <mCONTROL\mCONTROL.h>
 #pragma once

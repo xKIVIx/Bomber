@@ -16,7 +16,6 @@ class vCONTROL_API vCONTROL
 {
 public:
 	vCONTROL(HWND h_wnd);
-	void ChangeState(int state);
 	~vCONTROL();
 	void Rend();
 	void ResizeWindow(int rect_x, int rect_y);

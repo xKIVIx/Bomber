@@ -71,14 +71,16 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <LibraryPath>E:\My_Projects\gCONTROL\gCONTROL;$(LibraryPath)</LibraryPath>
-    <IncludePath>E:\My_Projects\Main\headers;$(IncludePath)</IncludePath>
+    <LibraryPath>E:\My_Projects\Main\Debug;$(LibraryPath)</LibraryPath>
+    <IncludePath>E:\My_Projects\Main;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
+    <IncludePath>E:\My_Projects\Main;$(IncludePath)</IncludePath>
+    <LibraryPath>E:\My_Projects\Main\Debug;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>

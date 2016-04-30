@@ -11,7 +11,7 @@
 
 _LOG_API void LogSendMessage(int type_message,std::string block,std::string message)
 {
-	// задание пути к лог файлу
+	// path to log file
 	time_t t;
 	tm tk;
 	time(&t);
@@ -28,7 +28,7 @@ _LOG_API void LogSendMessage(int type_message,std::string block,std::string mess
 	name = name + "_" + tmp;
 	std::string path = "log\\" + block;
 
-	//открытие или создание лог файла
+	//open or create log file
 	std::fstream file;
 	CreateDirectoryA("log", NULL);
 	CreateDirectoryA(path.c_str(), NULL);
