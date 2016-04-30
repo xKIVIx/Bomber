@@ -1,9 +1,3 @@
-#define LOG_ERROR 1000
-#define LOG_CRITICAL_ERROR 1001
-#define LOG_WARNING 1002
-#define LOG_DOING 1003
-#define LOG_INFO 1004
-
 #ifdef __LOG_DLL
 #define _LOG_API _declspec(dllexport)
 #else
@@ -16,5 +10,6 @@
 #define	LogSend(type_message, block, message)
 #endif
 #include <string>
+#include <Main\includs.h>
 _LOG_API void LogSendMessage(int type_message, std::string block, std::string message);
 

@@ -4,14 +4,12 @@
 #else
 #define mCONTROL_API _declspec(dllimport)
 #endif
-#include <Windows.h>
-#include <functional>
-
+#include <Main\includs.h>
 class mCONTROL_API mCONTROL
 {
 public:
-	mCONTROL(HWND h_wnd,std::function <void> * import, int * key_flags, int size);
-	~mCONTROL();
+	mCONTROL(HWND in_h_wnd,std::function <void> * import, int * key_flags, int size);
+	//~mCONTROL();
 	void MouseMove(int x, int y);
 	void MouseRightUp(int x, int y);
 	void MouseRightDown(int x, int y);

@@ -1,11 +1,7 @@
 #define LOG_ON
 #define vCONTROL_DLL
 #include "vCONTROL.h"
-#include <thread>
-#include <loger\log_error.h>
-#include <mutex>
-#include <thread>
-#include <gl\GL.h>
+#include <vMENUS\vMENUS.h>
 //function init pixel format
 bool  InitPixelFormat(HDC h_dc)
 {
@@ -33,19 +29,23 @@ void vCONTROL_API vCONTROL::ResizeWindow(int rect_x, int rect_y)
 {
 	glViewport(0, 0, rect_x, rect_y);
 }
-void vCONTROL_API vCONTROL::Rend()
+void vCONTROL_API vCONTROL::Rend(int new_state)
 {
+	if (new_state)
+	{
+		LogSend(LOG_INFO, "vCONTROL", "get new state");
+		now_state = new_state;
+	}
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glBegin(GL_TRIANGLES);
-	glVertex3f(-0.5f, 0.0f, 0.0f);
-	glVertex3f(0.5f, 0.5f, 0.0f);
-	glVertex3f(-0.5f, 0.5f, 0.0f);
-	glEnd();
+	if (MENU_API::GetMenu(now_state))
+		LogSend(LOG_ERROR, "vCONTROL", "can`t define state");
 	SwapBuffers(h_dc);
+	SendMessage(h_wnd, WM_PAINT, NULL, NULL);
 }
 //set class function
-vCONTROL_API vCONTROL::vCONTROL (HWND h_wnd)
+vCONTROL_API vCONTROL::vCONTROL (HWND in_h_wnd)
 {
+	h_wnd = in_h_wnd;
 	h_dc = GetDC(h_wnd);
 	InitPixelFormat(h_dc);
 	h_rc = wglCreateContext(h_dc);
@@ -62,6 +62,7 @@ vCONTROL_API vCONTROL::vCONTROL (HWND h_wnd)
 		SendMessage(h_wnd, WM_DESTROY, NULL, NULL);
 		return;
 	}
+	glClearColor(0, 0, 0, 255);
 }
 vCONTROL_API vCONTROL::~vCONTROL()
 {
