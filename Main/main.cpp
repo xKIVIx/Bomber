@@ -16,10 +16,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		_v_control->ResizeWindow(LOWORD(lParam), HIWORD(lParam));
 		break;
 	case WM_RBUTTONDOWN:
-		_m_control->MouseRightDown(NULL, NULL);
+		_m_control->MouseRightDown(float(LOWORD(lParam)), float(HIWORD(lParam)));
 		break;
 	case WM_LBUTTONDOWN:
-		_m_control->MouseLeftDown(NULL, NULL);
+		_m_control->MouseLeftDown(float(LOWORD(lParam)), float(HIWORD(lParam)));
 		break;
 	case WM_DESTROY:
 		_v_control->~vCONTROL();
@@ -74,15 +74,15 @@ int WINAPI WinMain(HINSTANCE hInstance,
 		LogSend(LOG_CRITICAL_ERROR, "main", "Error window`s desctription");
 		return 2;
 	}
-	bool error = 0;
 	_v_control = new vCONTROL(h_wnd);
-	_m_control = new mCONTROL(h_wnd, NULL, NULL, NULL);
 	//show window
 	SetWindowLong(h_wnd, GWL_STYLE, WS_POPUP);//Устанавливаем новые стили
 	SetWindowLong(h_wnd, GWL_EXSTYLE, WS_EX_TOPMOST);
 	ShowWindow(h_wnd, SW_SHOWMAXIMIZED);//Окно во весь экран
 	//update window
 	UpdateWindow(h_wnd);
+
+	_m_control = new mCONTROL(h_wnd, NULL, NULL, NULL);
 	//get message
 	MSG msg;
 	while (GetMessage(&msg, NULL, 0, 0))
