@@ -1,6 +1,7 @@
 #define LOG_ON
 #define vCONTROL_DLL
 #include "RenderObject.h"
+#include <Main\includs.h>
 #include "vCONTROL.h"
 //function init pixel format
 bool  InitPixelFormat(HDC h_dc)
@@ -28,12 +29,6 @@ bool  InitPixelFormat(HDC h_dc)
 void vCONTROL_API vCONTROL::ResizeWindow(int rect_x, int rect_y)
 {
 	glViewport(0, 0, rect_x, rect_y);
-}
-vCONTROL::vCONTROL(HWND in_h_wnd)
-{
-}
-vCONTROL::~vCONTROL()
-{
 }
 void vCONTROL_API vCONTROL::Rend(int new_state)
 {

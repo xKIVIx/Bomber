@@ -1,4 +1,6 @@
 #pragma once
+#include <Main\includs.h>
+#include "glext.h"
 //expensive for opengl buffers
 class OPENGL_BUFFER
 {
