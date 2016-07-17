@@ -1,7 +1,7 @@
 #define LOG_ON
 #define vCONTROL_DLL
+#include "RenderObject.h"
 #include "vCONTROL.h"
-#include <vMENUS\vMENUS.h>
 //function init pixel format
 bool  InitPixelFormat(HDC h_dc)
 {
@@ -29,6 +29,12 @@ void vCONTROL_API vCONTROL::ResizeWindow(int rect_x, int rect_y)
 {
 	glViewport(0, 0, rect_x, rect_y);
 }
+vCONTROL::vCONTROL(HWND in_h_wnd)
+{
+}
+vCONTROL::~vCONTROL()
+{
+}
 void vCONTROL_API vCONTROL::Rend(int new_state)
 {
 	if (new_state)
@@ -37,8 +43,6 @@ void vCONTROL_API vCONTROL::Rend(int new_state)
 		now_state = new_state;
 	}
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	if (MENU_API::GetMenu(now_state))
-		LogSend(LOG_ERROR, "vCONTROL", "can`t define state");
 	SwapBuffers(h_dc);
 	SendMessage(h_wnd, WM_PAINT, NULL, NULL);
 }
