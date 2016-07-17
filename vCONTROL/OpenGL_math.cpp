@@ -1,4 +1,4 @@
-#include <Main\includs.h>
+
 #include "OpenGL_math.h"
 
  OPENGL_MATH::f_vector::f_vector()

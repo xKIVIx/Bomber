@@ -1,6 +1,3 @@
-#include <Main\includs.h>
-#include "OpenGl.h"
-#include "glext.h"
 #include "RenderObject.h"
 void OBJECT_FOR_REND::Draw(OPENGL_BUFFER * opengl_buffer)
 {

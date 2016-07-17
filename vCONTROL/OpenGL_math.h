@@ -1,4 +1,5 @@
 #pragma once
+#include <Main\includs.h>
 namespace OPENGL_MATH
 {
 	struct i_vector

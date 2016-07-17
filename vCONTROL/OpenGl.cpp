@@ -1,8 +1,5 @@
-#include <Main\includs.h>
-#include "glext.h"
 #include "OpenGl.h"
-
- OPENGL_BUFFER::OPENGL_BUFFER(byte * er)
+OPENGL_BUFFER::OPENGL_BUFFER(byte * er)
 {
 	const char * extensions = (const char *)glGetString(GL_EXTENSIONS);
 	if (!extensions)

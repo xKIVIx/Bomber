@@ -4,8 +4,6 @@
 #else
 #define vCONTROL_API _declspec(dllimport)
 #endif
-#include <Main\includs.h>
-
 class vCONTROL_API vCONTROL
 {
 public:
