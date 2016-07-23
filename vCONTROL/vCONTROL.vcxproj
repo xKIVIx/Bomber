@@ -152,13 +152,18 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="OpenGl.h" />
+    <ClInclude Include="OPENGL_BUFFER.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</DeploymentContent>
+    </ClInclude>
     <ClInclude Include="OpenGL_math.h" />
     <ClInclude Include="RenderObject.h" />
     <ClInclude Include="vCONTROL.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="OpenGl.cpp" />
+    <ClCompile Include="OPENGL_BUFFER.cpp">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsCpp</CompileAs>
+    </ClCompile>
     <ClCompile Include="OpenGL_math.cpp" />
     <ClCompile Include="RenderObject.cpp" />
     <ClCompile Include="vCONTROL.cpp" />

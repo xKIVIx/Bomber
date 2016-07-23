@@ -10,7 +10,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	switch (message)
 	{
 	case WM_PAINT:
-		_v_control->Rend(LOWORD(wParam));
+		_v_control->Rend();
 		break;
 	case WM_SIZE:
 		_v_control->ResizeWindow(LOWORD(lParam), HIWORD(lParam));
@@ -50,7 +50,7 @@ bool RegWindowClass(HINSTANCE hInstance)
 	window.lpszMenuName = NULL;
 	window.lpszClassName = GAME_NAME;
 	window.hIconSm = LoadIcon(window.hInstance, MAKEINTRESOURCE(IDI_APPLICATION));
-	return RegisterClassEx(&window);
+	return bool(RegisterClassEx(&window));
 }
 int WINAPI WinMain(HINSTANCE hInstance,
 	HINSTANCE hPrevInstance,
@@ -78,7 +78,7 @@ int WINAPI WinMain(HINSTANCE hInstance,
 	//show window
 	SetWindowLong(h_wnd, GWL_STYLE, WS_POPUP);//Устанавливаем новые стили
 	SetWindowLong(h_wnd, GWL_EXSTYLE, WS_EX_TOPMOST);
-	ShowWindow(h_wnd, SW_SHOWMAXIMIZED);//Окно во весь экран
+	ShowWindow(h_wnd, SW_SHOWNORMAL);//Окно во весь экран
 	//update window
 	UpdateWindow(h_wnd);
 

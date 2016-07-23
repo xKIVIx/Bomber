@@ -15,12 +15,21 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="stCONTROL.h">
+    <ClInclude Include="stMENU.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MenuObjects.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="stCONTROL.cpp">
+    <Library Include="..\Debug\loger.lib" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="stMENU.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MenuObjects.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
