@@ -5,6 +5,8 @@
 #include <functional>
 #include <thread>
 #include <mutex>
+#include <vector>
+#include <map>
 
 #include <gl\GL.h>  
 

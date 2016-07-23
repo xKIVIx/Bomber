@@ -1,7 +1,5 @@
 #define LOG_ON
 #define vCONTROL_DLL
-#include "RenderObject.h"
-#include <Main\includs.h>
 #include "vCONTROL.h"
 //function init pixel format
 bool  InitPixelFormat(HDC h_dc)
@@ -26,23 +24,45 @@ bool  InitPixelFormat(HDC h_dc)
 	return 0;
 }
 //rendering finction
-void vCONTROL_API vCONTROL::ResizeWindow(int rect_x, int rect_y)
+void vCONTROL::ResizeWindow(int rect_x, int rect_y)
 {
 	glViewport(0, 0, rect_x, rect_y);
 }
-void vCONTROL_API vCONTROL::Rend(int new_state)
+void vCONTROL::SwapRenderObjects(std::vector<OBJECT_FOR_REND> new_render_objects)
 {
-	if (new_state)
+	lock_swap.lock();
+	render_objects.swap(new_render_objects);
+	lock_swap.unlock();
+}
+void vCONTROL::Rend()
+{
+	byte erro = NULL;
+	OPENGL_BUFFER opengl_buffer(&erro);
+	if (!erro)
 	{
-		LogSend(LOG_INFO, "vCONTROL", "get new state");
-		now_state = new_state;
+		LogSend(LOG_INFO, "vCONTROL", "Buffer work");
+		while (!stop)
+		{
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			glEnableClientState(GL_VERTEX_ARRAY);
+			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+			lock_swap.lock();
+			for (UINT i = 0; i < render_objects.size(); i++)
+				render_objects[i].Draw(&opengl_buffer);
+			lock_swap.unlock();
+			glDisableClientState(GL_VERTEX_ARRAY);
+			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+			SwapBuffers(h_dc);
+		}
 	}
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	SwapBuffers(h_dc);
-	SendMessage(h_wnd, WM_PAINT, NULL, NULL);
+	else
+	{
+		MessageBox(NULL, L"Buffer don`t work", L"Error buffer", NULL);
+		LogSend(LOG_ERROR, "vCONTROL", "Buffer don`t work");
+	}
 }
 //set class function
-vCONTROL_API vCONTROL::vCONTROL (HWND in_h_wnd)
+vCONTROL::vCONTROL (HWND in_h_wnd)
 {
 	h_wnd = in_h_wnd;
 	h_dc = GetDC(h_wnd);
@@ -61,9 +81,16 @@ vCONTROL_API vCONTROL::vCONTROL (HWND in_h_wnd)
 		SendMessage(h_wnd, WM_DESTROY, NULL, NULL);
 		return;
 	}
-	glClearColor(0, 0, 0, 255);
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	glClearDepth(1.0);
+	glDepthFunc(GL_LESS);
+	glEnable(GL_DEPTH_TEST);
+	glShadeModel(GL_SMOOTH);
+	glAlphaFunc(GL_GREATER, 0.6f);
+	glEnable(GL_ALPHA_TEST);
+	glEnable(GL_TEXTURE_2D);
 }
-vCONTROL_API vCONTROL::~vCONTROL()
+vCONTROL::~vCONTROL()
 {
 	if (h_rc)
 	{
