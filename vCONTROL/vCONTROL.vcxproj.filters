@@ -18,30 +18,20 @@
     <ClInclude Include="vCONTROL.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="RenderObject.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="OPENGL_BUFFER.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="OpenGL_math.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vOBJECT.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Library Include="..\Debug\loger.lib" />
+    <Library Include="..\Debug\Opengl_buffer.lib" />
+    <Library Include="..\Debug\vRESOURCE.lib" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="vCONTROL.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="RenderObject.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="OPENGL_BUFFER.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="OpenGL_math.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

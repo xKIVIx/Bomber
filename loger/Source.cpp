@@ -1,14 +1,15 @@
 
-#define __LOG_DLL
+#define LOG_DLL
 
 
 #include "log_error.h"
+#include <Windows.h>
 #include <fstream>
 #include <time.h>
 
 
 
-_LOG_API void LogSendMessage(int type_message,std::string block,std::string message)
+LOG_API void LogSendMessage(int type_message,std::string block,std::string message)
 {
 	// path to log file
 	time_t t;

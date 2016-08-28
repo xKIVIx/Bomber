@@ -4,7 +4,9 @@
 #else
 #define mCONTROL_API _declspec(dllimport)
 #endif
-#include <Main\includs.h>
+#include <Windows.h>
+#include <functional>
+#include <Main\names.h>
 class mCONTROL_API mCONTROL
 {
 public:
@@ -22,6 +24,6 @@ private:
 	class FIELD;
 	FIELD * fields;
 	int count_fields = 0;
-	HWND h_wnd;
+	HWND h_wnd_;
 	float f_window_width, f_window_height;
 };

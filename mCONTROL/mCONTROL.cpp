@@ -42,9 +42,9 @@ void mCONTROL_API mCONTROL::MouseLeftDown(float f_x, float f_y)
 }
 mCONTROL_API mCONTROL::mCONTROL(HWND in_h_wnd, std::function <void> * import, int * key_flags, int size)
 {
-	h_wnd = in_h_wnd;
+	h_wnd_ = in_h_wnd;
 	RECT window_size;
-	GetClientRect(h_wnd, &window_size);
+	GetClientRect(h_wnd_, &window_size);
 	f_window_width = float(window_size.right - window_size.left);
 	f_window_height = float(window_size.bottom - window_size.top);
 	fields = new FIELD(0.8f, 1.0f, 1.0f, 0.9f, [in_h_wnd]() {SendMessage(in_h_wnd, WM_DESTROY, NULL, NULL); });
