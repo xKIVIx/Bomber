@@ -3,27 +3,27 @@
 #include <mCONTROL\mCONTROL.h>
 #include <stCONTROL\stCONTROL.h>
 #include "names.h"
-vCONTROL * _v_control;
-mCONTROL * _m_control;
+#include <thread>
+vCONTROL * v_control;
+mCONTROL * m_control;
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	switch (message)
 	{
 	case WM_PAINT:
-		_v_control->Rend();
+		v_control->Rend();
 		break;
 	case WM_SIZE:
-		_v_control->ResizeWindow(LOWORD(lParam), HIWORD(lParam));
+		v_control->ResizeWindow(LOWORD(lParam), HIWORD(lParam));
 		break;
 	case WM_RBUTTONDOWN:
-		_m_control->MouseRightDown(float(LOWORD(lParam)), float(HIWORD(lParam)));
+		//m_control->MouseRightDown(float(LOWORD(lParam)), float(HIWORD(lParam)));
 		break;
 	case WM_LBUTTONDOWN:
-		_m_control->MouseLeftDown(float(LOWORD(lParam)), float(HIWORD(lParam)));
+		//m_control->MouseLeftDown(float(LOWORD(lParam)), float(HIWORD(lParam)));
 		break;
 	case WM_DESTROY:
-		_v_control->~vCONTROL();
-		LogSend(LOG_INFO, "main", "Закрытие приложения");
+		LogSend(LOG_INFO, "main", "Close program");
 		PostQuitMessage(0);
 		break;
 	default:
@@ -36,7 +36,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 //reg window class
 bool RegWindowClass(HINSTANCE hInstance)
 {
-	LogSend(LOG_INFO, "main", "Регестрация класса окна");
+	LogSend(LOG_INFO, "main", "Reg window class");
 	WNDCLASSEX window;
 	window.cbSize = sizeof(WNDCLASSEX);
 	window.style = CS_HREDRAW | CS_VREDRAW;
@@ -74,15 +74,23 @@ int WINAPI WinMain(HINSTANCE hInstance,
 		LogSend(LOG_CRITICAL_ERROR, "main", "Error window`s desctription");
 		return 2;
 	}
-	_v_control = new vCONTROL(h_wnd);
+	v_control = new vCONTROL (h_wnd);
+	v_control->SetSourceObjects([]() {
+		std::vector <vOBJECT> tmp;
+		vOBJECT gg;
+		gg.recurce_id_ = 0;
+		tmp.push_back(gg);
+		return tmp;
+	});
+	//m_control = new mCONTROL(h_wnd, NULL, NULL, NULL);
 	//show window
-	SetWindowLong(h_wnd, GWL_STYLE, WS_POPUP);//Устанавливаем новые стили
+	SetWindowLong(h_wnd, GWL_STYLE, WS_POPUP);
 	SetWindowLong(h_wnd, GWL_EXSTYLE, WS_EX_TOPMOST);
-	ShowWindow(h_wnd, SW_SHOWNORMAL);//Окно во весь экран
+	ShowWindow(h_wnd, SW_SHOWMAXIMIZED);
 	//update window
 	UpdateWindow(h_wnd);
-
-	_m_control = new mCONTROL(h_wnd, NULL, NULL, NULL);
+	RECT window_size;
+	GetWindowRect(h_wnd, &window_size);
 	//get message
 	MSG msg;
 	while (GetMessage(&msg, NULL, 0, 0))
@@ -90,5 +98,7 @@ int WINAPI WinMain(HINSTANCE hInstance,
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
 	}
+	delete v_control;
+	delete m_control;
 	return (int)msg.wParam;
 }

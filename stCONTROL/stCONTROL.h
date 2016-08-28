@@ -1,4 +1,8 @@
 #pragma once
+#ifndef stCONTROL_HEAD
+#define stCONTROL_HEAD
+#include <mutex>
+#include <stMENU\stMENU.h>
 #ifdef stCONTROL_DLL
 #define stCONTROL_API _declspec(dllexport)
 #else
@@ -6,7 +10,7 @@
 #endif
 class stCONTROL_API stCONTROL
 {
-private:
-
 public:
+private:
 };
+#endif // !stCONTROL_HEAD

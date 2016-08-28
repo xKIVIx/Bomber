@@ -8,8 +8,18 @@ namespace OPENGL_MATH
 	struct i_vector
 	{
 		int x, y, z;
-		i_vector();
-		i_vector(int x_in, int y_in, int z_in);
+		i_vector()
+		{
+			x = 0;
+			y = 0;
+			z = 0;
+		}
+		i_vector(int x_in, int y_in, int z_in)
+		{
+			x = x_in;
+			y = y_in;
+			z = z_in;
+		}
 	};
 	typedef i_vector i_vertex;
 	struct f_vector
@@ -22,7 +32,13 @@ namespace OPENGL_MATH
 			z = 0.0f;
 		}
 		f_vector(float x_in, float y_in, float z_in);
-		f_vector(i_vector i_vector_in, UINT work_width, UINT work_height, UINT work_depth = 0);
+		f_vector(i_vector i_vector_in, UINT work_width, UINT work_height, UINT work_depth = 0)
+		{
+			x = float(i_vector_in.x - 150) / float(work_width)*2.0f - 1.0f;
+			y = (float(i_vector_in.y) / float(work_height)*2.0f - 1.0f)*(-1.0f);
+			if (work_depth)
+				z = float(i_vector_in.z) / float(work_depth) * (-1.0f);
+		}
 	};
 	typedef f_vector f_vertex;
 	struct rgb
@@ -34,7 +50,12 @@ namespace OPENGL_MATH
 			g = 0;
 			b = 0;
 		};
-		rgb(byte r_in, byte g_in, byte b_in);
+		rgb(byte r_in, byte g_in, byte b_in)
+		{
+			r = r_in;
+			g = g_in;
+			b = b_in;
+		}
 	};
 	struct rgba
 	{
@@ -46,8 +67,21 @@ namespace OPENGL_MATH
 			b = 0;
 			a = 0;
 		}
-		rgba(byte r_in, byte g_in, byte b_in, byte a_in);
-		rgba operator = (rgb in);
+		rgba(byte r_in, byte g_in, byte b_in, byte a_in)
+		{
+			r = r_in;
+			g = g_in;
+			b = b_in;
+			a = a_in;
+		}
+		rgba operator = (rgb in)
+		{
+			this->a = 255;
+			this->r = in.r;
+			this->g = in.g;
+			this->b = in.b;
+			return rgba(in.r, in.g, in.b, 255);
+		}
 	};
 	struct tex_coord
 	{
@@ -57,8 +91,12 @@ namespace OPENGL_MATH
 			u = 0.0f;
 			v = 0.0f;
 		}
-		tex_coord(float u_in, float v_in);
+		tex_coord(float u_in, float v_in)
+		{
+			u = u_in;
+			v = v_in;
+		}
 	};
-	f_vector NormalizeVector(f_vector vect);
+
 }
 #endif

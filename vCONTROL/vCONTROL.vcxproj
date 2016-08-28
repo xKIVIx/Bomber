@@ -152,24 +152,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="OPENGL_BUFFER.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</DeploymentContent>
-    </ClInclude>
     <ClInclude Include="OpenGL_math.h" />
-    <ClInclude Include="RenderObject.h" />
     <ClInclude Include="vCONTROL.h" />
+    <ClInclude Include="vOBJECT.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="OPENGL_BUFFER.cpp">
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsCpp</CompileAs>
-    </ClCompile>
-    <ClCompile Include="OpenGL_math.cpp" />
-    <ClCompile Include="RenderObject.cpp" />
     <ClCompile Include="vCONTROL.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="..\Debug\loger.lib" />
+    <Library Include="..\Debug\Opengl_buffer.lib" />
+    <Library Include="..\Debug\vRESOURCE.lib" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
