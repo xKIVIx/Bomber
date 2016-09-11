@@ -78,20 +78,52 @@ void vCONTROL::Rend()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	//get render objects
 	object_for_rend_.swap(source_objects_());
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
 	//rendering objects
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	((vRESOURCE*)resource_.at(2))->Select();
+	SelectTextureCoord(id_texcoord_, opengl_buffer_);
+	glTranslatef(0.0f, 0.0f, 0.5f);
+	glScalef(2, 2, 0);
+	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+	glLoadIdentity();
+	glTranslatef(-1.0f, -1.0f, 0.0f);
+	glScalef(scale_cof_x_, scale_cof_y_, 0);
 	for (auto iter = object_for_rend_.begin(); iter < object_for_rend_.end(); iter++)
 	{
-		glEnableClientState(GL_VERTEX_ARRAY);
+		glPushMatrix();
+		glTranslatef(iter->x_pos_, iter->y_pos_, 0);
 		((vRESOURCE*)resource_.at(iter->recurce_id_))->Select();
+		SelectTextureCoord(id_texcoord_, opengl_buffer_);
 		glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-		glDisableClientState(GL_VERTEX_ARRAY);
+		glPopMatrix();
 	}
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	glDisableClientState(GL_VERTEX_ARRAY);
 	SwapBuffers(h_dc_);
-	SendMessage(h_wnd_, WM_PAINT, NULL, NULL);
 }
 void vCONTROL::SetSourceObjects(std::function<std::vector<vOBJECT>()> source_objects)
 {
 	source_objects_ = source_objects;
+}
+void vCONTROL::SetScaleCof(unsigned int map_width, unsigned int map_heigh)
+{
+	RECT window_size;
+	GetClientRect(h_wnd_, &window_size);
+	scale_cof_x_ = 1.0f / float(map_width);
+	scale_cof_y_ = 1.0f / float(map_heigh);
+}
+void vCONTROL::SetScaleCof(float cof_x, float cof_y)
+{
+	scale_cof_x_ = cof_x;
+	scale_cof_y_ = cof_y;
+}
+void vCONTROL::GetScaleCof(float * cof_x, float * cof_y)
+{
+	*cof_x = scale_cof_x_;
+	*cof_y = scale_cof_y_;
 }
 //set class function
 vCONTROL::vCONTROL (HWND h_wnd)
@@ -118,7 +150,8 @@ vCONTROL::vCONTROL (HWND h_wnd)
 	glDepthFunc(GL_LESS);
 	glEnable(GL_TEXTURE_2D);
 	glEnable(GL_DEPTH_TEST);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+	glAlphaFunc(GL_GREATER, 0.6f);  // Настройка альфа теста (запрет смешивания)
+	glEnable(GL_ALPHA_TEST);
 	byte error = 0;
 	opengl_buffer_ = new OPENGL_BUFFER(&error);
 	if (error == 0)
@@ -129,6 +162,8 @@ vCONTROL::vCONTROL (HWND h_wnd)
 		opengl_buffer_ = 0;
 	}
 	LoadGameResource();
+	float tm[8] = { 0.0,0.0,0.0,1.0,1.0,1.0,1.0,0.0 };
+	id_texcoord_ = InitTexCoord(tm, opengl_buffer_);
 }
 vCONTROL::~vCONTROL()
 {

@@ -18,9 +18,6 @@
     <ClInclude Include="vCONTROL.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="OpenGL_math.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="vOBJECT.h">
       <Filter>Header Files</Filter>
     </ClInclude>

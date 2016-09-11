@@ -13,7 +13,8 @@
 #define vRESOURCE_API _declspec(dllimport)
 #endif
 
-
+unsigned int vRESOURCE_API InitTexCoord(float * tmp, void * opengl);
+void vRESOURCE_API SelectTextureCoord (unsigned int id, void * opengl);
 class vRESOURCE_API vRESOURCE
 {
 public:
