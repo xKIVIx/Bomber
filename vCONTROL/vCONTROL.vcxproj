@@ -152,7 +152,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="OpenGL_math.h" />
     <ClInclude Include="vCONTROL.h" />
     <ClInclude Include="vOBJECT.h" />
   </ItemGroup>

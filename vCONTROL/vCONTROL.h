@@ -22,12 +22,17 @@ public:
 	void ResizeWindow(int rect_x, int rect_y);
 	void Rend();
 	void SetSourceObjects(std::function <std::vector <vOBJECT>()> source_objects);
+	void SetScaleCof(unsigned int map_width, unsigned int map_heigh);
+	void SetScaleCof(float cof_x,float cof_y);
+	void GetScaleCof(float * cof_x, float*cof_y);
 private:
+	unsigned int id_texcoord_;
 	HWND h_wnd_;
 	HDC h_dc_;
 	HGLRC h_rc_;
 	// opengl buffer context
 	void * opengl_buffer_;
+	float scale_cof_x_ = 0, scale_cof_y_ = 0;
 	std::unordered_map <unsigned int, void *> resource_;
 	std::vector <vOBJECT> object_for_rend_;
 	std::function <std::vector <vOBJECT>()> source_objects_;

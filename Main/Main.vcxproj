@@ -159,9 +159,8 @@
     <ClInclude Include="names.h" />
   </ItemGroup>
   <ItemGroup>
+    <Library Include="..\Debug\gCONTROL.lib" />
     <Library Include="..\Debug\loger.lib" />
-    <Library Include="..\Debug\mCONTROL.lib" />
-    <Library Include="..\Debug\stCONTROL.lib" />
     <Library Include="..\Debug\vCONTROL.lib" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

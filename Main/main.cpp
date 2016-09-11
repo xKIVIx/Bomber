@@ -1,11 +1,12 @@
 #define LOG_ON
+#include <Windows.h>
 #include <vCONTROL\vCONTROL.h>
-#include <mCONTROL\mCONTROL.h>
-#include <stCONTROL\stCONTROL.h>
+#include <gCONTROL\gCONTROL.h>
+#include <loger\log_error.h>
 #include "names.h"
 #include <thread>
 vCONTROL * v_control;
-mCONTROL * m_control;
+gCONTROL * g_control;
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	switch (message)
@@ -17,10 +18,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		v_control->ResizeWindow(LOWORD(lParam), HIWORD(lParam));
 		break;
 	case WM_RBUTTONDOWN:
-		//m_control->MouseRightDown(float(LOWORD(lParam)), float(HIWORD(lParam)));
 		break;
 	case WM_LBUTTONDOWN:
-		//m_control->MouseLeftDown(float(LOWORD(lParam)), float(HIWORD(lParam)));
 		break;
 	case WM_DESTROY:
 		LogSend(LOG_INFO, "main", "Close program");
@@ -75,13 +74,12 @@ int WINAPI WinMain(HINSTANCE hInstance,
 		return 2;
 	}
 	v_control = new vCONTROL (h_wnd);
+	g_control = new gCONTROL;
+	v_control->SetScaleCof(unsigned int(30), unsigned int(30));
 	v_control->SetSourceObjects([]() {
-		std::vector <vOBJECT> tmp;
-		vOBJECT gg;
-		gg.recurce_id_ = 0;
-		tmp.push_back(gg);
-		return tmp;
+		return g_control->GetObjectsForRend();
 	});
+	g_control->InitMap(30, 30);
 	//m_control = new mCONTROL(h_wnd, NULL, NULL, NULL);
 	//show window
 	SetWindowLong(h_wnd, GWL_STYLE, WS_POPUP);
@@ -99,6 +97,5 @@ int WINAPI WinMain(HINSTANCE hInstance,
 		DispatchMessage(&msg);
 	}
 	delete v_control;
-	delete m_control;
 	return (int)msg.wParam;
 }

@@ -22,8 +22,7 @@
   <ItemGroup>
     <Library Include="..\Debug\vCONTROL.lib" />
     <Library Include="..\Debug\loger.lib" />
-    <Library Include="..\Debug\mCONTROL.lib" />
-    <Library Include="..\Debug\stCONTROL.lib" />
+    <Library Include="..\Debug\gCONTROL.lib" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">

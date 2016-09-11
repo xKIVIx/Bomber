@@ -104,3 +104,15 @@ unsigned int vRESOURCE::LoadTexture(std::fstream * file)
 	glTexImage2D(GL_TEXTURE_2D, 0, 4, texture_size[0], texture_size[1], 0, GL_RGBA, GL_UNSIGNED_BYTE, tmp_texture);
 	return count_sprites;
 }
+unsigned int InitTexCoord(float * tmp, void * opengl)
+{
+	unsigned int id = *((OPENGL_BUFFER *)opengl)->GenBeffers(1);
+	((OPENGL_BUFFER *)opengl)->BindBuffer(GL_ARRAY_BUFFER_ARB, id);
+	((OPENGL_BUFFER *)opengl)->AddBufferData(GL_ARRAY_BUFFER_ARB, sizeof(float)* 8, tmp, GL_STATIC_DRAW_ARB);
+	return  id;
+}
+void SelectTextureCoord(unsigned int id, void * opengl)
+{
+	((OPENGL_BUFFER *)opengl)->BindBuffer(GL_ARRAY_BUFFER_ARB, id);
+	glTexCoordPointer(2, GL_FLOAT, 0, (char*)NULL);
+}
