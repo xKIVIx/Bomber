@@ -1,7 +1,7 @@
 #pragma once
 #define GAME_NAME L"alpha_name"
-#define window_width 500
-#define window_height 500
+#define window_width 1000
+#define window_height 700
 
 //for log
 #define LOG_ERROR 1000
@@ -15,3 +15,8 @@
 #define STATE_MAIN_MENU 1001
 #define STATE_GAME		1002
 #define STATE_MENU		1003
+
+#define KEY_A 0x41
+#define KEY_W 0x57
+#define KEY_S 0x53
+#define KEY_D 0x44

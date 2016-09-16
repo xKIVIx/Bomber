@@ -12,19 +12,60 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	switch (message)
 	{
 	case WM_PAINT:
+	{
 		v_control->Rend();
 		break;
+	}
 	case WM_SIZE:
+	{
 		v_control->ResizeWindow(LOWORD(lParam), HIWORD(lParam));
 		break;
+	}
 	case WM_RBUTTONDOWN:
 		break;
 	case WM_LBUTTONDOWN:
 		break;
+	case WM_KEYDOWN:
+	{
+		switch (wParam)
+		{
+		case KEY_A:
+		{
+			g_control->Command('a');
+			break;
+		}
+		case KEY_W:
+		{
+			g_control->Command('w');
+			break;
+		}
+		case KEY_S:
+		{
+			g_control->Command('s');
+			break;
+		}
+		case KEY_D:
+		{
+			g_control->Command('d');
+			break;
+		}
+		case 0x1b:
+		{
+			LogSend(LOG_INFO, "main", "Close program");
+			PostQuitMessage(0);
+			break;
+		}
+		default:
+			break;
+		}
+		break;
+	}
 	case WM_DESTROY:
+	{
 		LogSend(LOG_INFO, "main", "Close program");
 		PostQuitMessage(0);
 		break;
+	}
 	default:
 		return DefWindowProc(hWnd, message, wParam, lParam);
 		break;
@@ -74,21 +115,17 @@ int WINAPI WinMain(HINSTANCE hInstance,
 		return 2;
 	}
 	v_control = new vCONTROL (h_wnd);
-	g_control = new gCONTROL;
-	v_control->SetScaleCof(unsigned int(30), unsigned int(30));
+	g_control = new gCONTROL (h_wnd,10,10);
+	v_control->SetScaleCof(unsigned int(10), unsigned int(10));
 	v_control->SetSourceObjects([]() {
 		return g_control->GetObjectsForRend();
 	});
-	g_control->InitMap(30, 30);
-	//m_control = new mCONTROL(h_wnd, NULL, NULL, NULL);
 	//show window
 	SetWindowLong(h_wnd, GWL_STYLE, WS_POPUP);
 	SetWindowLong(h_wnd, GWL_EXSTYLE, WS_EX_TOPMOST);
-	ShowWindow(h_wnd, SW_SHOWMAXIMIZED);
+	ShowWindow(h_wnd, SW_NORMAL);
 	//update window
 	UpdateWindow(h_wnd);
-	RECT window_size;
-	GetWindowRect(h_wnd, &window_size);
 	//get message
 	MSG msg;
 	while (GetMessage(&msg, NULL, 0, 0))

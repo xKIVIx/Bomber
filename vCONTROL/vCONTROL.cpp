@@ -91,10 +91,12 @@ void vCONTROL::Rend()
 	glLoadIdentity();
 	glTranslatef(-1.0f, -1.0f, 0.0f);
 	glScalef(scale_cof_x_, scale_cof_y_, 0);
+	glTranslatef(1.0f, 1.0f, 0.0f);
 	for (auto iter = object_for_rend_.begin(); iter < object_for_rend_.end(); iter++)
 	{
 		glPushMatrix();
 		glTranslatef(iter->x_pos_, iter->y_pos_, 0);
+		glRotatef(iter->dir_angl_, 0, 0, 1);
 		((vRESOURCE*)resource_.at(iter->recurce_id_))->Select();
 		SelectTextureCoord(id_texcoord_, opengl_buffer_);
 		glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
