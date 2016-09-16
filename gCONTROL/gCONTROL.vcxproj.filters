@@ -18,10 +18,10 @@
     <ClCompile Include="gCONTROL.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="gOBJECT.cpp">
+    <ClCompile Include="gOBJECTS.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="gCELL.cpp">
+    <ClCompile Include="gCONVEER.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -29,10 +29,10 @@
     <ClInclude Include="gCONTROL.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="gOBJECT.h">
+    <ClInclude Include="gOBJECTS.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="gCELL.h">
+    <ClInclude Include="gCONVEER.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

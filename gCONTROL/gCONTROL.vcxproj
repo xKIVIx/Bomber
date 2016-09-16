@@ -144,14 +144,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="gCELL.cpp" />
     <ClCompile Include="gCONTROL.cpp" />
-    <ClCompile Include="gOBJECT.cpp" />
+    <ClCompile Include="gCONVEER.cpp" />
+    <ClCompile Include="gOBJECTS.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="gCELL.h" />
     <ClInclude Include="gCONTROL.h" />
-    <ClInclude Include="gOBJECT.h" />
+    <ClInclude Include="gCONVEER.h" />
+    <ClInclude Include="gOBJECTS.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -8,6 +8,8 @@
 #include <unordered_map>
 #include <functional>
 
+#include <Windows.h>
+
 #include "vOBJECT.h"
 #ifdef vCONTROL_DLL
 #define vCONTROL_API _declspec(dllexport)
