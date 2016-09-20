@@ -3,7 +3,8 @@
 #define _gCONTROL_HEADER
 #include <thread>
 #include <vector>
-#include <Windows.h>
+
+#include <gNET\gNET.h>
 
 #include "gCONVEER.h"
 #include "gOBJECTS.h"
@@ -20,9 +21,11 @@ public:
 	std::vector <vOBJECT> GetObjectsForRend();
 	gCONTROL(HWND h_wnd, unsigned int map_width, unsigned int map_height);
 	~gCONTROL();
-	void Command(char key);
+	void Command(short int player_id,char key);
 	void InitMap(unsigned int map_width,unsigned int map_height);
 	void StopGame();
+	void Boom(unsigned int x, unsigned int y);
+	void GetComSecondPlayer(short id_second_player);
 private:
 	class CELL
 	{
@@ -35,23 +38,24 @@ private:
 		void Delete();
 		void SetNewObject(gOBJECT * new_object);
 		bool Damage(int * power_bomb);
-		int Colis();
+		bool Colis();
+		unsigned int GetBombPower();
 	private:
 		std::mutex lock_;
 		gOBJECT * object_;
 	};
+	gNET * g_net_one , * g_net_two;
 	HWND h_wnd_;
 	bool stop = 0;
 	std::thread game_thread;
 	std::mutex lock_objects_, lock_stop_stat_;
 	std::vector <CELL> objects_;
 	gCONVEER do_list_;
-	gOBJECT_PERSON * player_one_, *player_two_;
+	gOBJECT_PERSON * players[2];
 	unsigned int map_width_, map_height_;
 	unsigned int TransCoord(unsigned int x, unsigned int y);
 	bool CheckStopStat();
 	void GameProcess();
-	void Boom(unsigned int x, unsigned int y);
 };
 
 #endif // !_gCONTROL_HEADER
