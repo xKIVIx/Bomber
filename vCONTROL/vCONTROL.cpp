@@ -116,11 +116,8 @@ void vCONTROL::SetScaleCof(unsigned int map_width, unsigned int map_heigh)
 	GetClientRect(h_wnd_, &window_size);
 	scale_cof_x_ = 1.0f / float(map_width);
 	scale_cof_y_ = 1.0f / float(map_heigh);
-}
-void vCONTROL::SetScaleCof(float cof_x, float cof_y)
-{
-	scale_cof_x_ = cof_x;
-	scale_cof_y_ = cof_y;
+	unsigned int width = window_size.right - window_size.left, height = window_size.bottom - window_size.top;
+	glViewport((width - height) / 2, 0, height, height);
 }
 void vCONTROL::GetScaleCof(float * cof_x, float * cof_y)
 {

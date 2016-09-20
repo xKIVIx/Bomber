@@ -10,13 +10,15 @@ std::vector<vOBJECT> gCONTROL::GetObjectsForRend()
 {
 	std::vector<vOBJECT> out;
 	vOBJECT tmp;
+	lock_objects_.lock();
 	for (auto iter = objects_.begin(); iter < objects_.end(); iter++)
 	{
 		if ((*iter).GetRendInfo(&tmp))
 			out.push_back(tmp);
 	}
-	out.push_back(player_one_->GetRendInfo());
-	out.push_back(player_two_->GetRendInfo());
+	out.push_back(players[0]->GetRendInfo());
+	out.push_back(players[1]->GetRendInfo());
+	lock_objects_.unlock();
 	return out;
 }
 
@@ -31,62 +33,90 @@ gCONTROL::~gCONTROL()
 {
 	StopGame();
 	game_thread.join();
+	for (short int i = 0; i < 2; i++)
+		delete players[i];
 }
 
-void gCONTROL::Command(char key)
+void gCONTROL::Command(short int player_id, char key)
 {
 	unsigned int x1 = 0, x2 = 0, y1 = 0, y2= 0;
-	int power_fire = 0;
-	gOBJECT_PERSON * tmp_pers = player_one_;
+	gOBJECT_PERSON * tmp_pers = players[player_id];
 	tmp_pers->GetPositionIntervals(&x1, &x2, &y1, &y2);
 	switch (key)
 	{
 	case 'w':
 	{
+		if (player_id != 1)
+			g_net_one->SendCommand('w');
 		do_list_.AddFunc([tmp_pers]() {
 			tmp_pers->SetMoveDirection(up);
 		});
 		y1++;
-		power_fire += (objects_[TransCoord(x1, y1)].Colis() + objects_[TransCoord(x2, y1)].Colis());
-		if (power_fire == 0)
+		if ((!objects_[TransCoord(x1, y1)].Colis()) && (!objects_[TransCoord(x2, y1)].Colis()))
 			do_list_.AddFunc([tmp_pers]() {tmp_pers->Move(); });
 		break;
 	}
 	case 's':
 	{
+		if (player_id != 1)
+			g_net_one->SendCommand('s');
 		do_list_.AddFunc([tmp_pers]() {
 			tmp_pers->SetMoveDirection(down);
 		});
 		y2--;
-		power_fire += (objects_[TransCoord(x1, y2)].Colis() + objects_[TransCoord(x2, y2)].Colis());
-		if (power_fire == 0)
+		if ((!objects_[TransCoord(x1, y2)].Colis()) && (!objects_[TransCoord(x2, y2)].Colis()))
 			do_list_.AddFunc([tmp_pers]() {tmp_pers->Move(); });
 		break;
 	}
 	case 'a':
 	{
+		if (player_id != 1)
+			g_net_one->SendCommand('a');
 		do_list_.AddFunc([tmp_pers]() {
 			tmp_pers->SetMoveDirection(left);
 		});
 		x2--;
-		power_fire += (objects_[TransCoord(x2, y1)].Colis() + objects_[TransCoord(x2, y2)].Colis());
-		if (power_fire == 0)
+		if ((!objects_[TransCoord(x2, y2)].Colis()) && (!objects_[TransCoord(x2, y1)].Colis()))
 			do_list_.AddFunc([tmp_pers]() {tmp_pers->Move(); });
 		break;
 	}
 	case 'd':
 	{
+		if (player_id != 1)
+			g_net_one->SendCommand('d');
 		do_list_.AddFunc([tmp_pers]() {
 			tmp_pers->SetMoveDirection(right);
 		});
 		x1++;
-		power_fire += (objects_[TransCoord(x1, y1)].Colis() + objects_[TransCoord(x1, y2)].Colis());
-		if (power_fire == 0)
+		if ((!objects_[TransCoord(x1, y1)].Colis()) && (!objects_[TransCoord(x1, y2)].Colis()))
 			do_list_.AddFunc([tmp_pers]() {tmp_pers->Move(); });
 		break;
 	}
 	case ' ':
 	{
+		if (player_id != 1)
+			g_net_one->SendCommand(' ');
+		objects_[TransCoord(x1, y1)].SetNewObject((gOBJECT*) new gOBJECT_BOMB(5,x1, y1));
+		do_list_.AddFunc(tmp_pers->GetBombTimer(),[x1,y1,this]() {
+			this->Boom(x1, y1);
+		});
+		break;
+	}
+	case 'i':
+	{
+		g_net_one = new gNET(SERVER, "localhost");
+		GetComSecondPlayer(1);
+		lock_objects_.lock();
+		gOBJECT_PERSON*tmp = players[0];
+		players[0] = players[1];
+		players[1] = tmp;
+		lock_objects_.unlock();
+		break;
+	}
+	case 'y':
+	{
+		g_net_one = new gNET(CLIENT, "localhost");
+		GetComSecondPlayer(1);
 		break;
 	}
 	default:
@@ -112,7 +142,12 @@ void gCONTROL::InitMap(unsigned int map_width, unsigned int map_height)
 				(x_i==(map_width -1)))
 				objects_[TransCoord(x_i, y_i)].SetNewObject((gOBJECT*) new gOBJECT_WALL(TYPE_WALLS::iron, x_i, y_i));
 			else
-				objects_[TransCoord(x_i, y_i)].SetNewObject((gOBJECT*) new gOBJECT_WALL(TYPE_WALLS::brick, x_i, y_i));
+			{
+				if ((x_i % 2) && (y_i % 2))
+					objects_[TransCoord(x_i, y_i)].SetNewObject((gOBJECT*) new gOBJECT_WALL(TYPE_WALLS::iron, x_i, y_i));
+				else
+					objects_[TransCoord(x_i, y_i)].SetNewObject((gOBJECT*) new gOBJECT_WALL(TYPE_WALLS::brick, x_i, y_i));
+			}
 		}
 	}
 	//add start pos
@@ -124,8 +159,8 @@ void gCONTROL::InitMap(unsigned int map_width, unsigned int map_height)
 	objects_[TransCoord(map_width - 2, map_height - 2)].Delete();
 	objects_[TransCoord(map_width - 2, map_height - 3)].Delete();
 	objects_[TransCoord(map_width - 3, map_height - 2)].Delete();
-	player_one_ = new gOBJECT_PERSON(1, 1);
-	player_two_ = new gOBJECT_PERSON(map_width-2, map_height - 2);
+	players[0] = new gOBJECT_PERSON(1, 1);
+	players[1] = new gOBJECT_PERSON(map_width - 2, map_width - 2);
 	lock_objects_.unlock();
 }
 
@@ -151,11 +186,68 @@ void gCONTROL::GameProcess()
 
 void gCONTROL::Boom(unsigned int x, unsigned int y)
 {
-	int power_boom[4] = {4};
-	for (unsigned int i = 0; i < power_boom; i++)
+	const unsigned int fire_time = 500;
+	int power_boom[4];
+	for (int i = 0; i < 4; i++)
+		power_boom[i] = objects_[TransCoord(x, y)].GetBombPower();
+	if (power_boom[0] != 0)
 	{
-		
+		objects_[TransCoord(x, y)].SetNewObject((gOBJECT *)new gOBJECT_FIRE(x, y));
+		CELL * tmp = &objects_[TransCoord(x, y)];
+		do_list_.AddFunc(fire_time, [tmp]() {tmp->Delete(); });
+		for (int i = 1; i < power_boom[0]; i++)
+		{
+			if (objects_[TransCoord(x + i, y)].Damage(&power_boom[0]))
+			{
+				objects_[TransCoord(x + i, y)].SetNewObject((gOBJECT *)new gOBJECT_FIRE(x + i, y));
+				CELL * tmp = &objects_[TransCoord(x + i, y)];
+				do_list_.AddFunc(fire_time, [tmp]() {tmp->Delete(); });
+			}
+		}
+		for (int i = 1; i < power_boom[1]; i++)
+		{
+			if (objects_[TransCoord(x - i, y)].Damage(&power_boom[1]))
+			{
+				objects_[TransCoord(x - i, y)].SetNewObject((gOBJECT *)new gOBJECT_FIRE(x - i, y));
+				CELL * tmp = &objects_[TransCoord(x - i, y)];
+				do_list_.AddFunc(fire_time, [tmp]() {tmp->Delete(); });
+			}
+		}
+		for (int i = 1; i < power_boom[2]; i++)
+		{
+			if (objects_[TransCoord(x, y + i)].Damage(&power_boom[2]))
+			{
+				objects_[TransCoord(x, y + i)].SetNewObject((gOBJECT *)new gOBJECT_FIRE(x, y + i));
+				CELL * tmp = &objects_[TransCoord(x, y + i)];
+				do_list_.AddFunc(fire_time, [tmp]() {tmp->Delete(); });
+			}
+		}
+		for (int i = 1; i < power_boom[3]; i++)
+		{
+			if (objects_[TransCoord(x, y - i)].Damage(&power_boom[3]))
+			{
+				objects_[TransCoord(x, y - i)].SetNewObject((gOBJECT *)new gOBJECT_FIRE(x, y - i));
+				CELL * tmp = &objects_[TransCoord(x, y - i)];
+				do_list_.AddFunc(fire_time, [tmp]() {tmp->Delete(); });
+			}
+		}
 	}
+}
+
+void gCONTROL::GetComSecondPlayer(short id_second_player)
+{
+	char * commands;
+	unsigned int count_com;
+	g_net_one->GetCommand(&commands, &count_com);
+	if (commands != NULL)
+	{
+		for (unsigned int i = 0; i < count_com; i++)
+			Command(id_second_player, commands[i]);
+		delete[]commands;
+	}
+	do_list_.AddFunc([this,id_second_player]() {
+		GetComSecondPlayer(id_second_player);
+	});
 }
 
 bool gCONTROL::CheckStopStat()
@@ -225,7 +317,6 @@ void gCONTROL::CELL::SetNewObject(gOBJECT * new_object)
 
 bool gCONTROL::CELL::Damage(int * power_bomb)
 {
-	*power_bomb--;
 	if (object_ == NULL)
 		return true;
 	object_->Destroy(power_bomb);
@@ -234,14 +325,19 @@ bool gCONTROL::CELL::Damage(int * power_bomb)
 	return false;
 }
 
-int gCONTROL::CELL::Colis()
+bool gCONTROL::CELL::Colis()
 {
-	int back_damage = 0;
+	std::lock_guard <std::mutex> lock(lock_);
 	if (object_ != NULL)
-	{
-		lock_.lock();
-		object_->Destroy(&back_damage);
-		lock_.unlock();
-	}
-	return back_damage;
+		return object_->Colis();
+	else
+		return false;
+}
+
+unsigned int gCONTROL::CELL::GetBombPower()
+{
+	if (object_ != NULL)
+		return ((gOBJECT_BOMB *)object_)->GetPowerBomb();
+	else
+		return 0;
 }

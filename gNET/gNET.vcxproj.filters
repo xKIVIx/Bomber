@@ -15,28 +15,16 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="gCONTROL.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="gOBJECTS.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="gCONVEER.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="gCONTROL.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="gOBJECTS.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="gCONVEER.h">
+    <ClInclude Include="gNET.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Library Include="..\Debug\gNET.lib" />
+    <Library Include="..\Debug\loger.lib" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="gNET.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

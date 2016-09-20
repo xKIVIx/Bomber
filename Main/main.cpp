@@ -1,7 +1,6 @@
 #define LOG_ON
-#include <Windows.h>
-#include <vCONTROL\vCONTROL.h>
 #include <gCONTROL\gCONTROL.h>
+#include <vCONTROL\vCONTROL.h>
 #include <loger\log_error.h>
 #include "names.h"
 #include <thread>
@@ -31,28 +30,43 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		{
 		case KEY_A:
 		{
-			g_control->Command('a');
+			g_control->Command(0,'a');
 			break;
 		}
 		case KEY_W:
 		{
-			g_control->Command('w');
+			g_control->Command(0, 'w');
 			break;
 		}
 		case KEY_S:
 		{
-			g_control->Command('s');
+			g_control->Command(0, 's');
 			break;
 		}
 		case KEY_D:
 		{
-			g_control->Command('d');
+			g_control->Command(0, 'd');
 			break;
 		}
-		case 0x1b:
+		case VK_SPACE:
+		{
+			g_control->Command(0,' ');
+			break;
+		}
+		case VK_ESCAPE:
 		{
 			LogSend(LOG_INFO, "main", "Close program");
 			PostQuitMessage(0);
+			break;
+		}
+		case VK_UP:
+		{
+			g_control->Command(0, 'i');
+			break;
+		}
+		case VK_DOWN:
+		{
+			g_control->Command(0, 'y');
 			break;
 		}
 		default:
@@ -114,16 +128,16 @@ int WINAPI WinMain(HINSTANCE hInstance,
 		LogSend(LOG_CRITICAL_ERROR, "main", "Error window`s desctription");
 		return 2;
 	}
-	v_control = new vCONTROL (h_wnd);
-	g_control = new gCONTROL (h_wnd,10,10);
-	v_control->SetScaleCof(unsigned int(10), unsigned int(10));
-	v_control->SetSourceObjects([]() {
-		return g_control->GetObjectsForRend();
-	});
 	//show window
 	SetWindowLong(h_wnd, GWL_STYLE, WS_POPUP);
 	SetWindowLong(h_wnd, GWL_EXSTYLE, WS_EX_TOPMOST);
 	ShowWindow(h_wnd, SW_NORMAL);
+	v_control = new vCONTROL(h_wnd);
+	g_control = new gCONTROL(h_wnd, 21, 21);
+	v_control->SetScaleCof(unsigned int(21), unsigned int(21));
+	v_control->SetSourceObjects([]() {
+		return g_control->GetObjectsForRend();
+	});
 	//update window
 	UpdateWindow(h_wnd);
 	//get message
