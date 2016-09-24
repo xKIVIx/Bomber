@@ -1,11 +1,16 @@
 
 #define vRESOURCE_DLL
-
+#define MAX_COUNT_SPRITES 6
+#define COUNT_BUFERS_FOR_SPRITES 21
 #include <fstream>
 #include <Windows.h>
 #include <gl\GL.h>
 #include <Opengl_buffer\OPENGL_BUFFER.h>
 #include "vRESOURCE.h"
+vRESOURCE_ARRAY::vRESOURCE_ARRAY()
+{
+	InitTexCoord();
+}
 unsigned int vRESOURCE_ARRAY::LoadResourceFromFile(std::wstring name, unsigned int window_width, unsigned int window_height)
 {
 	// open file
@@ -24,15 +29,60 @@ unsigned int vRESOURCE_ARRAY::LoadResourceFromFile(std::wstring name, unsigned i
 	return recurce_id;
 }
 
-void vRESOURCE_ARRAY::Select()
+bool vRESOURCE_ARRAY::Select(vOBJECT info)
 {
+	if (!(
+		(info.sprite_now_ <= info.id_sprite_mass_) &&
+		(info.id_sprite_mass_ < texture_coords_.size()) &&
+		(info.texture_id_ < textures_.size())))
+		return 0;
 	glVertexPointer(3, GL_FLOAT, 0, vertex_);
-	glBindTexture(GL_TEXTURE_2D, texture_);
+	glTexCoordPointer(2, GL_FLOAT, 8 * info.sprite_now_, texture_coords_[info.id_sprite_mass_][info.sprite_now_]);
+	glBindTexture(GL_TEXTURE_2D, textures_[info.texture_id_]);
+	return 1;
 }
 
 vRESOURCE_ARRAY::~vRESOURCE_ARRAY()
 {
 	delete [] vertex_;
+	for (auto i = texture_coords_.begin(); i < texture_coords_.end();i++)
+		for (auto k = i->begin(); k < i->end(); k++)
+			delete (*k._Ptr);
+}
+
+void vRESOURCE_ARRAY::InitTexCoord()
+{
+	std::vector <float *> tmp_vec;
+	float * tmp_coord;
+	for (unsigned i = 0; i < MAX_COUNT_SPRITES; i++)
+	{
+		tmp_vec.clear();
+		float cof = 1.0f / float(i + 1);
+		for (unsigned int k = 0; k < (i + 1); k++)
+		{
+			tmp_coord = new float[8];
+			//bot left
+			tmp_coord[0] = k*cof;
+			tmp_coord[1] = 0.0f;
+			//top left
+			tmp_coord[2] = k*cof;
+			tmp_coord[3] = 1.0f;
+			//top right
+			tmp_coord[4] = (k + 1)*cof;
+			tmp_coord[5] = 1.0f;
+			//bot tight
+			tmp_coord[6] = (k + 1)*cof;
+			tmp_coord[7] = 0.0f;
+			tmp_vec.push_back(tmp_coord);
+		};
+		texture_coords_.push_back(tmp_vec);
+	}
+}
+
+vRESOURCE_BUFFER::vRESOURCE_BUFFER(OPENGL_BUFFER * opengl_buf)
+{
+	opengl_buffer_ = opengl_buf;
+	InitTexCoord();
 }
 
 unsigned int vRESOURCE_BUFFER::LoadResourceFromFile(std::wstring name, unsigned int window_width, unsigned int window_height)
@@ -64,26 +114,68 @@ unsigned int vRESOURCE_BUFFER::LoadResourceFromFile(std::wstring name, unsigned 
 		return 0;
 }
 
-void vRESOURCE_BUFFER::Select()
+bool vRESOURCE_BUFFER::Select(vOBJECT info)
 {
+	if (!(
+		(info.sprite_now_ <= info.id_sprite_mass_) &&
+		(info.id_sprite_mass_ < texture_coords_.size()) &&
+		(info.texture_id_ < textures_.size())))
+		return 0;
 	opengl_buffer_->BindBuffer(GL_ARRAY_BUFFER_ARB,vertex_);
 	glVertexPointer(3, GL_FLOAT, 0, (char*)NULL);
-	glBindTexture(GL_TEXTURE_2D, texture_);
-}
-
-void vRESOURCE_BUFFER::SetOpenglBufferEx(OPENGL_BUFFER * opengl_buffer)
-{
-	opengl_buffer_ = opengl_buffer;
+	opengl_buffer_->BindBuffer(GL_ARRAY_BUFFER_ARB,texture_coords_[info.id_sprite_mass_][info.sprite_now_]);
+	float * tmp = new float[8];
+	opengl_buffer_->GetData(GL_ARRAY_BUFFER_ARB, 0, 8 * sizeof(float), tmp);
+	glTexCoordPointer(2, GL_FLOAT,0, (char*)NULL);
+	glBindTexture(GL_TEXTURE_2D, textures_[info.texture_id_]);
+	return 1;
 }
 
 vRESOURCE_BUFFER::~vRESOURCE_BUFFER()
 {
 	opengl_buffer_->DeleteBuffers(1, &vertex_);
+	for (auto i = texture_coords_.begin(); i < texture_coords_.end(); i++)
+		for (auto k = i->begin(); k < i->end();k++)
+			opengl_buffer_->DeleteBuffers(1,k._Ptr);
 }
 
+void vRESOURCE_BUFFER::InitTexCoord()
+{
+	std::vector <unsigned> out;
+	unsigned * tmp_ids = opengl_buffer_->GenBeffers(COUNT_BUFERS_FOR_SPRITES);
+	unsigned used_id = 0;
+	float tmp_coord [8];
+	for (unsigned i = 0; i < MAX_COUNT_SPRITES; i++)
+	{
+		out.clear();
+		float cof = 1.0f / float(i + 1);
+		for (unsigned int k = 0; k < (i + 1); k++)
+		{
+			//bot left
+			tmp_coord[0] = k*cof;
+			tmp_coord[1] = 0.0f;
+			//top left
+			tmp_coord[2] = k*cof;
+			tmp_coord[3] = 1.0f;
+			//top right
+			tmp_coord[4] = (k + 1)*cof;
+			tmp_coord[5] = 1.0f;
+			//bot tight
+			tmp_coord[6] = (k + 1)*cof;
+			tmp_coord[7] = 0.0f;
+			opengl_buffer_->BindBuffer(GL_ARRAY_BUFFER_ARB, tmp_ids[used_id]);
+			opengl_buffer_->AddBufferData(GL_ARRAY_BUFFER_ARB, sizeof(float)*8, tmp_coord, GL_STATIC_DRAW_ARB);
+			out.push_back(tmp_ids[used_id]);
+			used_id++;
+		};
+		texture_coords_.push_back(out);
+	}
+	delete[] tmp_ids;
+}
 vRESOURCE::~vRESOURCE()
 {
-	glDeleteTextures(1, &texture_);
+	for (auto i = textures_.begin(); i < textures_.end();i++)
+		glDeleteTextures(1, i._Ptr);
 }
 
 unsigned int vRESOURCE::LoadTexture(std::fstream * file)
@@ -97,22 +189,13 @@ unsigned int vRESOURCE::LoadTexture(std::fstream * file)
 	// read texture
 	unsigned char * tmp_texture = new unsigned char[texture_size[0] * texture_size[1]*4];
 	file->read((char*)tmp_texture, 4 * texture_size[0] * texture_size[1] * sizeof(unsigned char));
-	glGenTextures(1, &texture_);
-	glBindTexture(GL_TEXTURE_2D, texture_);
+	unsigned tmp_id = 0;
+	glGenTextures(1, &tmp_id);
+	glBindTexture(GL_TEXTURE_2D, tmp_id);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexImage2D(GL_TEXTURE_2D, 0, 4, texture_size[0], texture_size[1], 0, GL_RGBA, GL_UNSIGNED_BYTE, tmp_texture);
+	textures_.push_back(tmp_id);
+	delete[] tmp_texture;
 	return count_sprites;
-}
-unsigned int InitTexCoord(float * tmp, void * opengl)
-{
-	unsigned int id = *((OPENGL_BUFFER *)opengl)->GenBeffers(1);
-	((OPENGL_BUFFER *)opengl)->BindBuffer(GL_ARRAY_BUFFER_ARB, id);
-	((OPENGL_BUFFER *)opengl)->AddBufferData(GL_ARRAY_BUFFER_ARB, sizeof(float)* 8, tmp, GL_STATIC_DRAW_ARB);
-	return  id;
-}
-void SelectTextureCoord(unsigned int id, void * opengl)
-{
-	((OPENGL_BUFFER *)opengl)->BindBuffer(GL_ARRAY_BUFFER_ARB, id);
-	glTexCoordPointer(2, GL_FLOAT, 0, (char*)NULL);
 }

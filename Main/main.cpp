@@ -1,11 +1,11 @@
 #define LOG_ON
-#include <gCONTROL\gCONTROL.h>
+#include <thread>
+#include "GUI.h"
 #include <vCONTROL\vCONTROL.h>
 #include <loger\log_error.h>
 #include "names.h"
-#include <thread>
 vCONTROL * v_control;
-gCONTROL * g_control;
+mCONTROL * m_control;
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	switch (message)
@@ -30,43 +30,40 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		{
 		case KEY_A:
 		{
-			g_control->Command(0,'a');
+			m_control->Comand('a');
 			break;
 		}
 		case KEY_W:
 		{
-			g_control->Command(0, 'w');
+			m_control->Comand('w');
 			break;
 		}
 		case KEY_S:
 		{
-			g_control->Command(0, 's');
+			m_control->Comand('s');
 			break;
 		}
 		case KEY_D:
 		{
-			g_control->Command(0, 'd');
+			m_control->Comand('d');
 			break;
 		}
 		case VK_SPACE:
 		{
-			g_control->Command(0,' ');
+			m_control->Comand(' ');
 			break;
 		}
 		case VK_ESCAPE:
 		{
-			LogSend(LOG_INFO, "main", "Close program");
-			PostQuitMessage(0);
+			m_control->Comand('e');
 			break;
 		}
 		case VK_UP:
 		{
-			g_control->Command(0, 'i');
 			break;
 		}
 		case VK_DOWN:
 		{
-			g_control->Command(0, 'y');
 			break;
 		}
 		default:
@@ -133,10 +130,10 @@ int WINAPI WinMain(HINSTANCE hInstance,
 	SetWindowLong(h_wnd, GWL_EXSTYLE, WS_EX_TOPMOST);
 	ShowWindow(h_wnd, SW_NORMAL);
 	v_control = new vCONTROL(h_wnd);
-	g_control = new gCONTROL(h_wnd, 21, 21);
+	m_control = new mCONTROL(h_wnd);
 	v_control->SetScaleCof(unsigned int(21), unsigned int(21));
 	v_control->SetSourceObjects([]() {
-		return g_control->GetObjectsForRend();
+		return m_control->GetRendInfo();
 	});
 	//update window
 	UpdateWindow(h_wnd);
@@ -148,5 +145,6 @@ int WINAPI WinMain(HINSTANCE hInstance,
 		DispatchMessage(&msg);
 	}
 	delete v_control;
+	delete m_control;
 	return (int)msg.wParam;
 }

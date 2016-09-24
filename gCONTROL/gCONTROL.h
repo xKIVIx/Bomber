@@ -19,7 +19,7 @@ class gCONTROL_API gCONTROL
 {
 public:
 	std::vector <vOBJECT> GetObjectsForRend();
-	gCONTROL(HWND h_wnd, unsigned int map_width, unsigned int map_height);
+	gCONTROL(HWND h_wnd, unsigned int map_width, unsigned int map_height , char * host_name);
 	~gCONTROL();
 	void Command(short int player_id,char key);
 	void InitMap(unsigned int map_width,unsigned int map_height);

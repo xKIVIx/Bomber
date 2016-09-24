@@ -1,7 +1,7 @@
 #define LOG_ON
 #define vCONTROL_DLL
 
-#include <stdexcept>
+#include <Windows.h>
 #include <wchar.h>
 #include <Opengl_buffer\OPENGL_BUFFER.h>
 #include <vRECURCE\vRESOURCE.h>
@@ -49,26 +49,9 @@ void vCONTROL::LoadGameResource()
 	unsigned int resource_id = 0;
 	do
 	{
-		vRESOURCE * resource;
-		if (opengl_buffer_ != 0)
-		{
-			resource = (vRESOURCE *) new vRESOURCE_BUFFER;
-			((vRESOURCE_BUFFER *)resource)->SetOpenglBufferEx((OPENGL_BUFFER *)opengl_buffer_);
-		}
-		else
-		{
-			resource = (vRESOURCE *) new vRESOURCE_ARRAY;
-		}
 		wcscpy_s(file_path,260, L"rec/");
 		wcscat_s(file_path,260, file_data.cFileName);
-		resource_id = resource->LoadResourceFromFile(file_path, 0, 0);
-		auto insert_error = resource_.insert(std::pair<unsigned int, void *>(resource_id, (void*)resource));
-		if (insert_error.second == false)
-		{
-			LogSend(LOG_CRITICAL_ERROR, "vCONTROL", "Error resource id");
-			SendMessage(h_wnd_, WM_CLOSE, NULL, NULL);
-			return;
-		}
+		resource_id = ((vRESOURCE*)resource_)->LoadResourceFromFile(file_path, 0, 0);
 
 	} while (FindNextFile(h_find, &file_data) != 0);
 
@@ -83,24 +66,42 @@ void vCONTROL::Rend()
 	//rendering objects
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	((vRESOURCE*)resource_.at(2))->Select();
-	SelectTextureCoord(id_texcoord_, opengl_buffer_);
-	glTranslatef(0.0f, 0.0f, 0.5f);
-	glScalef(2, 2, 0);
-	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+	glTranslatef(-1.0f, -1.0f, 0.0f);
+	auto iter = object_for_rend_.begin();
+	glScalef(scale_cof_x_, scale_cof_y_, 0);
+	glTranslated(1, 1, 0);
+	for (; (iter < object_for_rend_.end()) && (iter->game_object); iter++)
+	{
+		if (((vRESOURCE*)resource_)->Select(*iter._Ptr))
+		{
+			glPushMatrix();
+			glTranslatef(iter->x_pos_, iter->y_pos_, iter->z_pos_);
+			glRotatef(iter->dir_angl_, 0, 0, 1);
+			glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+			glPopMatrix();
+		}
+		else
+		{
+			MessageBox(h_wnd_, L"Error resorce", L"Error", NULL);
+		}
+	};
 	glLoadIdentity();
 	glTranslatef(-1.0f, -1.0f, 0.0f);
-	glScalef(scale_cof_x_, scale_cof_y_, 0);
-	glTranslatef(1.0f, 1.0f, 0.0f);
-	for (auto iter = object_for_rend_.begin(); iter < object_for_rend_.end(); iter++)
+	for (; (iter < object_for_rend_.end())&&(!iter->game_object); iter++)
 	{
-		glPushMatrix();
-		glTranslatef(iter->x_pos_, iter->y_pos_, 0);
-		glRotatef(iter->dir_angl_, 0, 0, 1);
-		((vRESOURCE*)resource_.at(iter->recurce_id_))->Select();
-		SelectTextureCoord(id_texcoord_, opengl_buffer_);
-		glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-		glPopMatrix();
+		if (((vRESOURCE*)resource_)->Select(*iter._Ptr))
+		{
+			glPushMatrix();
+			glScalef(iter->scale_cof_x, iter->scale_cof_y, 0);
+			glTranslatef(iter->x_pos_/ iter->scale_cof_x, iter->y_pos_/ iter->scale_cof_y, iter->z_pos_);
+			glRotatef(iter->dir_angl_, 0, 0, 1);
+			glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+			glPopMatrix();
+		}
+		else
+		{
+			MessageBox(h_wnd_, L"Error resorce", L"Error", NULL);
+		}
 	}
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	glDisableClientState(GL_VERTEX_ARRAY);
@@ -116,8 +117,6 @@ void vCONTROL::SetScaleCof(unsigned int map_width, unsigned int map_heigh)
 	GetClientRect(h_wnd_, &window_size);
 	scale_cof_x_ = 1.0f / float(map_width);
 	scale_cof_y_ = 1.0f / float(map_heigh);
-	unsigned int width = window_size.right - window_size.left, height = window_size.bottom - window_size.top;
-	glViewport((width - height) / 2, 0, height, height);
 }
 void vCONTROL::GetScaleCof(float * cof_x, float * cof_y)
 {
@@ -149,20 +148,22 @@ vCONTROL::vCONTROL (HWND h_wnd)
 	glDepthFunc(GL_LESS);
 	glEnable(GL_TEXTURE_2D);
 	glEnable(GL_DEPTH_TEST);
-	glAlphaFunc(GL_GREATER, 0.6f);  // Настройка альфа теста (запрет смешивания)
+	glAlphaFunc(GL_GREATER, 0.1f);  // Настройка альфа теста (запрет смешивания)
 	glEnable(GL_ALPHA_TEST);
 	byte error = 0;
 	opengl_buffer_ = new OPENGL_BUFFER(&error);
 	if (error == 0)
+	{
 		LogSend(LOG_INFO, "vCONTROL", "Buffer work");
+		resource_ = new vRESOURCE_BUFFER((OPENGL_BUFFER *)opengl_buffer_);
+	}
 	else
 	{
 		LogSend(LOG_ERROR, "vCONTROL", "Buffer don`t work ");
+		resource_ = new vRESOURCE_ARRAY;
 		opengl_buffer_ = 0;
 	}
 	LoadGameResource();
-	float tm[8] = { 0.0,0.0,0.0,1.0,1.0,1.0,1.0,0.0 };
-	id_texcoord_ = InitTexCoord(tm, opengl_buffer_);
 }
 vCONTROL::~vCONTROL()
 {

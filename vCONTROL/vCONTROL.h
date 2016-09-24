@@ -8,7 +8,6 @@
 #include <unordered_map>
 #include <functional>
 
-#include <Windows.h>
 
 #include "vOBJECT.h"
 #ifdef vCONTROL_DLL
@@ -35,7 +34,7 @@ private:
 	// opengl buffer context
 	void * opengl_buffer_;
 	float scale_cof_x_ = 0, scale_cof_y_ = 0;
-	std::unordered_map <unsigned int, void *> resource_;
+	void * resource_;
 	std::vector <vOBJECT> object_for_rend_;
 	std::function <std::vector <vOBJECT>()> source_objects_;
 	void LoadGameResource();
