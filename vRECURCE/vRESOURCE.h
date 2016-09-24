@@ -2,9 +2,9 @@
 
 #pragma once
 #ifndef vRECURCE_HEAD
-
+#include <vector>
 #include <string>
-
+#include <vCONTROL\vOBJECT.h>
 #define vRESOURCE_HEAD
 
 #ifdef vRESOURCE_DLL
@@ -13,35 +13,41 @@
 #define vRESOURCE_API _declspec(dllimport)
 #endif
 
-unsigned int vRESOURCE_API InitTexCoord(float * tmp, void * opengl);
-void vRESOURCE_API SelectTextureCoord (unsigned int id, void * opengl);
+
 class vRESOURCE_API vRESOURCE
 {
 public:
 	virtual unsigned int LoadResourceFromFile(std::wstring name,unsigned int window_width, unsigned int window_height) = 0;
-	virtual void Select() = 0;
+	virtual bool Select(vOBJECT info) = 0;
 	 ~vRESOURCE();
 protected:
 	unsigned int LoadTexture(std::fstream * file);
-	unsigned int texture_, count_vertex_;
+	virtual void InitTexCoord() = 0;
+	std::vector <unsigned> textures_;
+	unsigned count_vertex_;
 };
 class vRESOURCE_API vRESOURCE_ARRAY :vRESOURCE
 {
 public:
+	vRESOURCE_ARRAY();
 	virtual unsigned int LoadResourceFromFile(std::wstring name, unsigned int window_width, unsigned int window_height);
-	virtual void Select();
+	virtual bool Select(vOBJECT info);
 	~vRESOURCE_ARRAY();
 private:
+	virtual void InitTexCoord();
+	std::vector <std::vector<float *>> texture_coords_;
 	float * vertex_;
 };
 class vRESOURCE_API vRESOURCE_BUFFER :vRESOURCE
 {
 public:
+	vRESOURCE_BUFFER(OPENGL_BUFFER * opengl_buffer_);
 	virtual unsigned int LoadResourceFromFile(std::wstring name, unsigned int window_width, unsigned int window_height);
-	virtual void Select();
-	void SetOpenglBufferEx(OPENGL_BUFFER * opengl_buffer);
+	virtual bool Select(vOBJECT info);
 	~vRESOURCE_BUFFER();
 private:
+	virtual void InitTexCoord();
+	std::vector  <std::vector<unsigned>> texture_coords_;
 	unsigned int vertex_;
 	OPENGL_BUFFER * opengl_buffer_;
 };

@@ -22,11 +22,26 @@ std::vector<vOBJECT> gCONTROL::GetObjectsForRend()
 	return out;
 }
 
-gCONTROL::gCONTROL(HWND h_wnd, unsigned int map_width, unsigned int map_height)
+gCONTROL::gCONTROL(HWND h_wnd, unsigned int map_width, unsigned int map_height, char * host_name)
 {
 	h_wnd_ = h_wnd;
 	InitMap(map_width, map_height);
+	/*
+	if (host_name == NULL)
+	{
+		g_net_one = new gNET(SERVER, "localhost");
+		GetComSecondPlayer(1);
+		gOBJECT_PERSON*tmp = players[0];
+		players[0] = players[1];
+		players[1] = tmp;
+	}
+	else
+	{
+		g_net_one = new gNET(CLIENT, host_name);
+		GetComSecondPlayer(1);
+	}
 	game_thread = std::thread(&gCONTROL::GameProcess,this);
+	*/
 }
 
 gCONTROL::~gCONTROL()
@@ -100,23 +115,6 @@ void gCONTROL::Command(short int player_id, char key)
 		do_list_.AddFunc(tmp_pers->GetBombTimer(),[x1,y1,this]() {
 			this->Boom(x1, y1);
 		});
-		break;
-	}
-	case 'i':
-	{
-		g_net_one = new gNET(SERVER, "localhost");
-		GetComSecondPlayer(1);
-		lock_objects_.lock();
-		gOBJECT_PERSON*tmp = players[0];
-		players[0] = players[1];
-		players[1] = tmp;
-		lock_objects_.unlock();
-		break;
-	}
-	case 'y':
-	{
-		g_net_one = new gNET(CLIENT, "localhost");
-		GetComSecondPlayer(1);
 		break;
 	}
 	default:
