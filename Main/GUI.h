@@ -9,8 +9,7 @@ enum MENU_STATE
 	GAME,
 	SEC_MENU,
 	WAIT,
-	LOSE,
-	WIN
+	END_GAME
 };
 class mCONTROL
 {
@@ -64,6 +63,7 @@ private:
 	HWND h_wnd_;
 	gCONTROL * g_control = NULL;
 	MENU_STATE now_state_ = LOAD;
+	std::thread doing_tread_;
 	std::mutex lock_objects_, lock_do_list_ , lock_stop_stat_;
 	std::deque <char> do_list_;
 	std::vector <MENU_OBJECT> menu_objects_;

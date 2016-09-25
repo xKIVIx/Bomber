@@ -56,12 +56,8 @@ gNET::~gNET()
 	lock_output_buffer_.lock();
 	shutdown(output_sock_, NULL);
 	shutdown(input_sock_, NULL);
-	delete[] output_buffer_;
-	delete[] input_buffer_;
-	size_input_buffer_ = 0;
-	size_output_buffer_ = 0;
-	output_thread_.join();
-	input_thread_.join();
+	output_thread_.detach();
+	input_thread_.detach();
 	lock_input_buffer_.unlock();
 	lock_output_buffer_.unlock();
 	closesocket(output_sock_);
@@ -84,13 +80,14 @@ void gNET::SendCommand(char com)
 
 }
 
-void gNET::GetCommand(char ** comands, unsigned int * count_com)
+bool gNET::GetCommand(char ** comands, unsigned int * count_com)
 {
 	std::lock_guard <std::mutex> lock(lock_input_buffer_);
 	*comands = input_buffer_;
 	*count_com = size_input_buffer_;
 	input_buffer_ = NULL;
 	size_input_buffer_ = 0;
+	return CheckStopState();
 }
 
 void gNET::InitClientState(char * server_name)
@@ -183,7 +180,6 @@ void gNET::GetMessegeThread()
 		if (count_com_sent < 0)
 		{
 			LogSend(LOG_ERROR, "gNET", "Input error");
-			Stop();
 			return;
 		}
 		unsigned int new_size;
@@ -203,13 +199,18 @@ void gNET::GetMessegeThread()
 		size_input_buffer_ = new_size;
 		input_buffer_ = tmp_buffer;
 	}
+	if (input_buffer_ != NULL)
+	{
+		size_input_buffer_ = 0;
+		delete[] input_buffer_;
+	}
 }
 
 void gNET::SendMessegeThread()
 {
 	while (!CheckStopState())
 	{
-		lock_output_buffer_.lock();
+		std::lock_guard <std::mutex> lock (lock_output_buffer_);
 		if (output_buffer_ != NULL)
 		{
 			int k = send(output_sock_, output_buffer_, size_output_buffer_, NULL);
@@ -237,7 +238,11 @@ void gNET::SendMessegeThread()
 				}
 			}
 		}
-		lock_output_buffer_.unlock();
+	}
+	if (output_buffer_ != NULL)
+	{
+		size_output_buffer_ = 0;
+		delete[] output_buffer_;
 	}
 }
 

@@ -1,6 +1,6 @@
 #define gCONTROL_DLL
 #define LOG_ON
-
+#define MOVE_CD 100
 #include <time.h>
 
 #include <loger\log_error.h>
@@ -26,11 +26,9 @@ gCONTROL::gCONTROL(HWND h_wnd, unsigned int map_width, unsigned int map_height, 
 {
 	h_wnd_ = h_wnd;
 	InitMap(map_width, map_height);
-	/*
 	if (host_name == NULL)
 	{
 		g_net_one = new gNET(SERVER, "localhost");
-		GetComSecondPlayer(1);
 		gOBJECT_PERSON*tmp = players[0];
 		players[0] = players[1];
 		players[1] = tmp;
@@ -38,16 +36,17 @@ gCONTROL::gCONTROL(HWND h_wnd, unsigned int map_width, unsigned int map_height, 
 	else
 	{
 		g_net_one = new gNET(CLIENT, host_name);
-		GetComSecondPlayer(1);
 	}
+	GetComSecondPlayer(1);
+	do_list_.AddFunc([this]() {this->CheckInFire(); });
 	game_thread = std::thread(&gCONTROL::GameProcess,this);
-	*/
 }
 
 gCONTROL::~gCONTROL()
 {
 	StopGame();
 	game_thread.join();
+	delete g_net_one;
 	for (short int i = 0; i < 2; i++)
 		delete players[i];
 }
@@ -61,6 +60,10 @@ void gCONTROL::Command(short int player_id, char key)
 	{
 	case 'w':
 	{
+		if ((player_id == 0) && ((clock() - move_cd_) < MOVE_CD))
+			return;
+		if (player_id == 0)
+			move_cd_ = clock();
 		if (player_id != 1)
 			g_net_one->SendCommand('w');
 		do_list_.AddFunc([tmp_pers]() {
@@ -68,11 +71,19 @@ void gCONTROL::Command(short int player_id, char key)
 		});
 		y1++;
 		if ((!objects_[TransCoord(x1, y1)].Colis()) && (!objects_[TransCoord(x2, y1)].Colis()))
+		{
 			do_list_.AddFunc([tmp_pers]() {tmp_pers->Move(); });
+			do_list_.AddFunc(MOVE_CD/2,[tmp_pers]() {tmp_pers->Move(); });
+
+		}
 		break;
 	}
 	case 's':
 	{
+		if ((player_id == 0) && ((clock() - move_cd_) < MOVE_CD))
+			return;
+		if (player_id == 0)
+			move_cd_ = clock();
 		if (player_id != 1)
 			g_net_one->SendCommand('s');
 		do_list_.AddFunc([tmp_pers]() {
@@ -80,11 +91,19 @@ void gCONTROL::Command(short int player_id, char key)
 		});
 		y2--;
 		if ((!objects_[TransCoord(x1, y2)].Colis()) && (!objects_[TransCoord(x2, y2)].Colis()))
+		{
 			do_list_.AddFunc([tmp_pers]() {tmp_pers->Move(); });
+			do_list_.AddFunc(MOVE_CD / 2, [tmp_pers]() {tmp_pers->Move(); });
+
+		}
 		break;
 	}
 	case 'a':
 	{
+		if ((player_id == 0) && ((clock() - move_cd_) < MOVE_CD))
+			return;
+		if (player_id == 0)
+			move_cd_ = clock();
 		if (player_id != 1)
 			g_net_one->SendCommand('a');
 		do_list_.AddFunc([tmp_pers]() {
@@ -92,11 +111,19 @@ void gCONTROL::Command(short int player_id, char key)
 		});
 		x2--;
 		if ((!objects_[TransCoord(x2, y2)].Colis()) && (!objects_[TransCoord(x2, y1)].Colis()))
+		{
 			do_list_.AddFunc([tmp_pers]() {tmp_pers->Move(); });
+			do_list_.AddFunc(MOVE_CD / 2, [tmp_pers]() {tmp_pers->Move(); });
+
+		}
 		break;
 	}
 	case 'd':
 	{
+		if ((player_id == 0) && ((clock() - move_cd_) < MOVE_CD))
+			return;
+		if (player_id == 0)
+			move_cd_ = clock();
 		if (player_id != 1)
 			g_net_one->SendCommand('d');
 		do_list_.AddFunc([tmp_pers]() {
@@ -104,7 +131,10 @@ void gCONTROL::Command(short int player_id, char key)
 		});
 		x1++;
 		if ((!objects_[TransCoord(x1, y1)].Colis()) && (!objects_[TransCoord(x1, y2)].Colis()))
+		{
 			do_list_.AddFunc([tmp_pers]() {tmp_pers->Move(); });
+			do_list_.AddFunc(MOVE_CD, [tmp_pers]() {tmp_pers->Move(); });
+		}
 		break;
 	}
 	case ' ':
@@ -116,6 +146,20 @@ void gCONTROL::Command(short int player_id, char key)
 			this->Boom(x1, y1);
 		});
 		break;
+	}
+	case 'p':
+	{
+		if (player_id == 0)
+			g_net_one->SendCommand('o');
+		SendMessage(h_wnd_, WM_WIN, NULL, NULL);
+		StopGame();
+	}
+	case 'o':
+	{
+		if (player_id == 0)
+			g_net_one->SendCommand('p');
+		SendMessage(h_wnd_, WM_LOSE, NULL, NULL);
+		StopGame();
 	}
 	default:
 		break;
@@ -184,10 +228,15 @@ void gCONTROL::GameProcess()
 
 void gCONTROL::Boom(unsigned int x, unsigned int y)
 {
-	const unsigned int fire_time = 500;
+	Boom(x, y, objects_[TransCoord(x, y)].GetBombPower());
+}
+
+void gCONTROL::Boom(unsigned int x, unsigned int y, unsigned power)
+{
+	const unsigned int fire_time = 300;
 	int power_boom[4];
 	for (int i = 0; i < 4; i++)
-		power_boom[i] = objects_[TransCoord(x, y)].GetBombPower();
+		power_boom[i] = power;
 	if (power_boom[0] != 0)
 	{
 		objects_[TransCoord(x, y)].SetNewObject((gOBJECT *)new gOBJECT_FIRE(x, y));
@@ -236,7 +285,11 @@ void gCONTROL::GetComSecondPlayer(short id_second_player)
 {
 	char * commands;
 	unsigned int count_com;
-	g_net_one->GetCommand(&commands, &count_com);
+	if (g_net_one->GetCommand(&commands, &count_com))
+	{
+		Command(0, 'p');
+		return;
+	}
 	if (commands != NULL)
 	{
 		for (unsigned int i = 0; i < count_com; i++)
@@ -246,6 +299,17 @@ void gCONTROL::GetComSecondPlayer(short id_second_player)
 	do_list_.AddFunc([this,id_second_player]() {
 		GetComSecondPlayer(id_second_player);
 	});
+}
+
+void gCONTROL::CheckInFire()
+{
+	unsigned x1=0, y1=0, x2=0, y2 = 0;
+	players[0]->GetPositionIntervals(&x1, &x2, &y1, &y2);
+	if (objects_[TransCoord(x1, y1)].IsFire() || objects_[TransCoord(x2, y2)].IsFire())
+	{
+		Command(0, 'o');
+		return;
+	}
 }
 
 bool gCONTROL::CheckStopStat()
@@ -279,6 +343,18 @@ gCONTROL::CELL::CELL(CELL & copy)
 gCONTROL::CELL::~CELL()
 {
 	Delete();
+}
+
+bool gCONTROL::CELL::IsFire()
+{
+	if (object_ != NULL)
+	{
+		int power_fire = 1;
+		object_->Destroy(&power_fire);
+		if (power_fire == 1)
+			return true;
+	}
+	return false;
 }
 
 bool gCONTROL::CELL::GetRendInfo(vOBJECT * out)

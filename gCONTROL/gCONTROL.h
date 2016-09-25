@@ -15,6 +15,9 @@
 #define gCONTROL_API _declspec(dllimport)
 #endif
 
+#define WM_WIN 1001
+#define WM_LOSE 1002
+
 class gCONTROL_API gCONTROL
 {
 public:
@@ -25,7 +28,9 @@ public:
 	void InitMap(unsigned int map_width,unsigned int map_height);
 	void StopGame();
 	void Boom(unsigned int x, unsigned int y);
+	void Boom(unsigned int x, unsigned int y, unsigned power);
 	void GetComSecondPlayer(short id_second_player);
+	void CheckInFire();
 private:
 	class CELL
 	{
@@ -34,6 +39,7 @@ private:
 		CELL(gOBJECT * new_object);
 		CELL(CELL & copy);
 		~CELL();
+		bool IsFire();
 		bool GetRendInfo(vOBJECT * out);
 		void Delete();
 		void SetNewObject(gOBJECT * new_object);
@@ -44,7 +50,9 @@ private:
 		std::mutex lock_;
 		gOBJECT * object_;
 	};
-	gNET * g_net_one , * g_net_two;
+	unsigned move_cd_ = 0;
+	unsigned time_to_next_airbomb_ = 30000;
+	gNET * g_net_one;
 	HWND h_wnd_;
 	bool stop = 0;
 	std::thread game_thread;

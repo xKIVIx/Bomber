@@ -20,7 +20,7 @@ gCONVEER::~gCONVEER()
 
 void gCONVEER::Do()
 {
-	while (GetNextPointer() != NULL)
+	if (GetNextPointer() != NULL)
 	{
 		gCONVEER_ELEM * tmp;
 		tmp = now->next_;
