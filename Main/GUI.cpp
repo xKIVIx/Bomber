@@ -4,10 +4,13 @@ mCONTROL::mCONTROL(HWND h_wnd)
 {
 	h_wnd_ = h_wnd;
 	SetMain();
+	doing_tread_ = std::thread(&mCONTROL::DoCommand, this);
 }
 
 mCONTROL::~mCONTROL()
 {
+	Stop();
+	doing_tread_.join();
 	delete g_control;
 }
 
@@ -36,7 +39,8 @@ void mCONTROL::DoCommand()
 			lock_do_list_.unlock();
 			Comand(tmp);
 		}
-		lock_do_list_.unlock();
+		else
+			lock_do_list_.unlock();
 	}
 }
 
@@ -129,17 +133,18 @@ void mCONTROL::Comand(char key)
 			} while (!menu_objects_[now_menu_select_].Select());
 			return;
 		}
+		case ' ':
+		{
+			menu_objects_[now_menu_select_].Use();
+			return;
+		}
 		defalut: 
 		{
 			return;
 		}
 		}
 	}
-	case WIN:
-	{
-		SetMain();
-	}
-	case LOSE:
+	case END_GAME:
 	{
 		SetMain();
 	}
@@ -150,7 +155,7 @@ std::vector<vOBJECT> mCONTROL::GetRendInfo()
 {
 	std::vector <vOBJECT> out;
 	std::lock_guard <std::mutex> lock_(lock_objects_);
-	if ((now_state_ == GAME) || (now_state_ == SEC_MENU))
+	if ((now_state_ == GAME))
 		out = g_control->GetObjectsForRend();
 	for (auto i = menu_objects_.begin(); i < menu_objects_.end(); i++)
 		out.push_back(i->GetRendInfo());
@@ -231,13 +236,19 @@ void mCONTROL::SetMain()
 	std::vector <MENU_OBJECT> tmp;
 	// host
 	tmp.push_back(MENU_OBJECT(0.5, 1.6, 0.0, 0.3, 0.2, 7, [this]() {this->SetGame(NULL); }));
+	tmp[0].Select();
 	// client
 	tmp.push_back(MENU_OBJECT(0.5, 1.2, 0.0, 0.3, 0.2, 5, [this]() {this->SetGame("localhost"); }));
 	// exit
 	tmp.push_back(MENU_OBJECT(0.5, 0.8, 0.9, 0.3, 0.2, 6, [this]() {this->Close(); }));
 	std::lock_guard <std::mutex> lock(lock_objects_);
+	now_menu_select_ = 0;
 	if (g_control != NULL)
+	{
+
 		delete g_control;
+		g_control = NULL;
+	}
 	now_state_ = MAIN;
 	menu_objects_.swap(tmp);
 }
@@ -245,27 +256,30 @@ void mCONTROL::SetMain()
 void mCONTROL::SetSecondMenu()
 {
 	std::vector <MENU_OBJECT> tmp;
-	// is exit?
-	tmp.push_back(MENU_OBJECT (0.3,0.6,0,0.3,0.3,8));
 	// no
-	tmp.push_back(MENU_OBJECT(0.3, 0.3, 0, 0.3, 0.3, 10, [this]() {this->SetGame(NULL); }));
+	tmp.push_back(MENU_OBJECT(0.5, 1, 0, 0.3, 0.3, 10, [this]() {this->SetGame(NULL); }));
+	tmp[0].Select();
 	// yes
-	tmp.push_back(MENU_OBJECT(0.6, 0.3, 0, 0.2, 0.2, 13, [this]() {this->Close(); }));
+	tmp.push_back(MENU_OBJECT(1.5, 1, 0, 0.3, 0.3, 13, [this]() {this->SetMain(); }));
+	// is exit?
+	tmp.push_back(MENU_OBJECT(1, 1.6, 0, 0.3, 0.3, 8));
 	std::lock_guard <std::mutex> lock(lock_objects_);
+	now_menu_select_ = 0;
 	now_state_ = SEC_MENU;
 	menu_objects_.swap(tmp);
-
 }
 
 void mCONTROL::SetGame(char * host_name)
 {
 	std::vector <MENU_OBJECT> tmp;
+	tmp.push_back(MENU_OBJECT(0, 0, 0.9, 2, 2, 2));
 	if (g_control == NULL)
 	{
 		SetLoad();
 		g_control = new gCONTROL(h_wnd_, 21, 21, host_name);
 	}
 	std::lock_guard <std::mutex> lock(lock_objects_);
+	now_menu_select_ = 0;
 	now_state_ = GAME;
 	menu_objects_.swap(tmp);
 }
@@ -275,17 +289,33 @@ void mCONTROL::SetLoad()
 	std::vector <MENU_OBJECT> tmp;
 	std::lock_guard <std::mutex> lock(lock_objects_);
 	tmp.push_back(MENU_OBJECT(1.8, 0.2, 0.0, 0.2, 0.2, 11));
+	now_menu_select_ = 0;
 	now_state_ = LOAD;
 	menu_objects_.swap(tmp);
 }
 
 void mCONTROL::SetWin()
 {
-
+	std::vector <MENU_OBJECT> tmp;
+	tmp.push_back(MENU_OBJECT(1, 1, 0, 0.5, 0.5, 12));
+	std::lock_guard <std::mutex> lock(lock_objects_);
+	if (now_state_ != END_GAME)
+	{
+		now_state_ = END_GAME;
+		menu_objects_.swap(tmp);
+	}
 }
 
 void mCONTROL::SetLose()
 {
+	std::vector <MENU_OBJECT> tmp;
+	tmp.push_back(MENU_OBJECT(1, 1, 0, 0.5, 0.5, 9));
+	std::lock_guard <std::mutex> lock(lock_objects_);
+	if (now_state_ != END_GAME)
+	{
+		now_state_ = END_GAME;
+		menu_objects_.swap(tmp);
+	}
 }
 
 void mCONTROL::Close()

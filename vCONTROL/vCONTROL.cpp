@@ -167,6 +167,16 @@ vCONTROL::vCONTROL (HWND h_wnd)
 }
 vCONTROL::~vCONTROL()
 {
+	if (opengl_buffer_ != NULL)
+	{
+		delete (vRESOURCE_BUFFER *)resource_;
+		delete (OPENGL_BUFFER *)opengl_buffer_;
+	}
+	else
+	{
+		delete (vRESOURCE_ARRAY *)resource_;
+
+	}
 	if (h_rc_)
 	{
 		wglMakeCurrent(h_dc_, NULL);

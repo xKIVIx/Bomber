@@ -24,7 +24,7 @@ public:
 	gNET(TYPE_NET type,char * server_name);
 	~gNET();
 	void SendCommand(char com);
-	void GetCommand(char ** comands , unsigned int * count_com);
+	bool GetCommand(char ** comands , unsigned int * count_com);
 private:
 	WSADATA wsa_data_ = { 0 };
 	SOCKET output_sock_ = INVALID_SOCKET, input_sock_ = INVALID_SOCKET;

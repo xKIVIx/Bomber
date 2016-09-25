@@ -124,8 +124,6 @@ bool vRESOURCE_BUFFER::Select(vOBJECT info)
 	opengl_buffer_->BindBuffer(GL_ARRAY_BUFFER_ARB,vertex_);
 	glVertexPointer(3, GL_FLOAT, 0, (char*)NULL);
 	opengl_buffer_->BindBuffer(GL_ARRAY_BUFFER_ARB,texture_coords_[info.id_sprite_mass_][info.sprite_now_]);
-	float * tmp = new float[8];
-	opengl_buffer_->GetData(GL_ARRAY_BUFFER_ARB, 0, 8 * sizeof(float), tmp);
 	glTexCoordPointer(2, GL_FLOAT,0, (char*)NULL);
 	glBindTexture(GL_TEXTURE_2D, textures_[info.texture_id_]);
 	return 1;

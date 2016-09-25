@@ -30,32 +30,32 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		{
 		case KEY_A:
 		{
-			m_control->Comand('a');
+			m_control->AddCom('a');
 			break;
 		}
 		case KEY_W:
 		{
-			m_control->Comand('w');
+			m_control->AddCom('w');
 			break;
 		}
 		case KEY_S:
 		{
-			m_control->Comand('s');
+			m_control->AddCom('s');
 			break;
 		}
 		case KEY_D:
 		{
-			m_control->Comand('d');
+			m_control->AddCom('d');
 			break;
 		}
 		case VK_SPACE:
 		{
-			m_control->Comand(' ');
+			m_control->AddCom(' ');
 			break;
 		}
 		case VK_ESCAPE:
 		{
-			m_control->Comand('e');
+			m_control->AddCom('e');
 			break;
 		}
 		case VK_UP:
@@ -69,6 +69,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		default:
 			break;
 		}
+		break;
+	}
+	case WM_WIN:
+	{
+		m_control->SetWin();
+		break;
+	}
+	case WM_LOSE:
+	{
+		m_control->SetLose();
 		break;
 	}
 	case WM_DESTROY:
