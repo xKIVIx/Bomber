@@ -1,3 +1,5 @@
+// this dll control net connection
+
 #define WIN32_LEAN_AND_MEAN
 #pragma once
 #ifndef _gNET_HEADER

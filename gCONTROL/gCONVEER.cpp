@@ -43,12 +43,12 @@ void gCONVEER::AddFunc(std::function<void()> func)
 	AddFunc(0, func);
 }
 
-void gCONVEER::AddFunc(unsigned int time_def, std::function<void()> func)
+void gCONVEER::AddFunc(unsigned int time_dif, std::function<void()> func)
 {
 	gCONVEER_ELEM * tmp = new gCONVEER_ELEM;
 	tmp->func_ = func;
 	tmp->init_time_ = clock();
-	tmp->dif_time_ = time_def;
+	tmp->dif_time_ = time_dif;
 	std::lock_guard <std::mutex> lock(lock_);
 	end->next_ = tmp;
 	end = tmp;

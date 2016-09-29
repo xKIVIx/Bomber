@@ -28,14 +28,14 @@ gCONTROL::gCONTROL(HWND h_wnd, unsigned int map_width, unsigned int map_height, 
 	InitMap(map_width, map_height);
 	if (host_name == NULL)
 	{
-		g_net_one = new gNET(SERVER, "localhost");
+		g_net = new gNET(SERVER, "localhost");
 		gOBJECT_PERSON*tmp = players[0];
 		players[0] = players[1];
 		players[1] = tmp;
 	}
 	else
 	{
-		g_net_one = new gNET(CLIENT, host_name);
+		g_net = new gNET(CLIENT, host_name);
 	}
 	GetComSecondPlayer(1);
 	do_list_.AddFunc([this]() {this->CheckInFire(); });
@@ -46,7 +46,7 @@ gCONTROL::~gCONTROL()
 {
 	StopGame();
 	game_thread.join();
-	delete g_net_one;
+	delete g_net;
 	for (short int i = 0; i < 2; i++)
 		delete players[i];
 }
@@ -65,7 +65,7 @@ void gCONTROL::Command(short int player_id, char key)
 		if (player_id == 0)
 			move_cd_ = clock();
 		if (player_id != 1)
-			g_net_one->SendCommand('w');
+			g_net->SendCommand('w');
 		do_list_.AddFunc([tmp_pers]() {
 			tmp_pers->SetMoveDirection(up);
 		});
@@ -85,7 +85,7 @@ void gCONTROL::Command(short int player_id, char key)
 		if (player_id == 0)
 			move_cd_ = clock();
 		if (player_id != 1)
-			g_net_one->SendCommand('s');
+			g_net->SendCommand('s');
 		do_list_.AddFunc([tmp_pers]() {
 			tmp_pers->SetMoveDirection(down);
 		});
@@ -105,7 +105,7 @@ void gCONTROL::Command(short int player_id, char key)
 		if (player_id == 0)
 			move_cd_ = clock();
 		if (player_id != 1)
-			g_net_one->SendCommand('a');
+			g_net->SendCommand('a');
 		do_list_.AddFunc([tmp_pers]() {
 			tmp_pers->SetMoveDirection(left);
 		});
@@ -125,7 +125,7 @@ void gCONTROL::Command(short int player_id, char key)
 		if (player_id == 0)
 			move_cd_ = clock();
 		if (player_id != 1)
-			g_net_one->SendCommand('d');
+			g_net->SendCommand('d');
 		do_list_.AddFunc([tmp_pers]() {
 			tmp_pers->SetMoveDirection(right);
 		});
@@ -140,7 +140,7 @@ void gCONTROL::Command(short int player_id, char key)
 	case ' ':
 	{
 		if (player_id != 1)
-			g_net_one->SendCommand(' ');
+			g_net->SendCommand(' ');
 		objects_[TransCoord(x1, y1)].SetNewObject((gOBJECT*) new gOBJECT_BOMB(5,x1, y1));
 		do_list_.AddFunc(tmp_pers->GetBombTimer(),[x1,y1,this]() {
 			this->Boom(x1, y1);
@@ -150,14 +150,14 @@ void gCONTROL::Command(short int player_id, char key)
 	case 'p':
 	{
 		if (player_id == 0)
-			g_net_one->SendCommand('o');
+			g_net->SendCommand('o');
 		SendMessage(h_wnd_, WM_WIN, NULL, NULL);
 		StopGame();
 	}
 	case 'o':
 	{
 		if (player_id == 0)
-			g_net_one->SendCommand('p');
+			g_net->SendCommand('p');
 		SendMessage(h_wnd_, WM_LOSE, NULL, NULL);
 		StopGame();
 	}
@@ -171,6 +171,7 @@ void gCONTROL::InitMap(unsigned int map_width, unsigned int map_height)
 	lock_objects_.lock();
 	//set vector for store objects
 	objects_.resize(map_height*map_width);
+	// save map sizes
 	map_height_ = map_height;
 	map_width_ = map_width;
 	//adding walls
@@ -220,6 +221,7 @@ unsigned int gCONTROL::TransCoord(unsigned int x, unsigned int y)
 
 void gCONTROL::GameProcess()
 {
+	// work processe
 	while (!CheckStopStat())
 	{
 		do_list_.Do();
@@ -233,10 +235,13 @@ void gCONTROL::Boom(unsigned int x, unsigned int y)
 
 void gCONTROL::Boom(unsigned int x, unsigned int y, unsigned power)
 {
+	// time for delete fire
 	const unsigned int fire_time = 300;
+	// fire power for lines
 	int power_boom[4];
 	for (int i = 0; i < 4; i++)
 		power_boom[i] = power;
+	//add fire on lines
 	if (power_boom[0] != 0)
 	{
 		objects_[TransCoord(x, y)].SetNewObject((gOBJECT *)new gOBJECT_FIRE(x, y));
@@ -283,19 +288,24 @@ void gCONTROL::Boom(unsigned int x, unsigned int y, unsigned power)
 
 void gCONTROL::GetComSecondPlayer(short id_second_player)
 {
+	// buffer for commands
 	char * commands;
 	unsigned int count_com;
-	if (g_net_one->GetCommand(&commands, &count_com))
+	// chek for disconnect
+	if (g_net->GetCommand(&commands, &count_com))
 	{
 		Command(0, 'p');
 		return;
 	}
+	// chek for empy buffer
 	if (commands != NULL)
 	{
+		// add commands
 		for (unsigned int i = 0; i < count_com; i++)
 			Command(id_second_player, commands[i]);
 		delete[]commands;
 	}
+	// add this function in do list
 	do_list_.AddFunc([this,id_second_player]() {
 		GetComSecondPlayer(id_second_player);
 	});

@@ -1,3 +1,4 @@
+// mCONTROL control game state
 #pragma once
 #include <vector>
 #include <deque>
@@ -63,7 +64,7 @@ private:
 	HWND h_wnd_;
 	gCONTROL * g_control = NULL;
 	MENU_STATE now_state_ = LOAD;
-	std::thread doing_tread_;
+	std::thread doing_thread_;
 	std::mutex lock_objects_, lock_do_list_ , lock_stop_stat_;
 	std::deque <char> do_list_;
 	std::vector <MENU_OBJECT> menu_objects_;

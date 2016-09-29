@@ -1,3 +1,5 @@
+// gCONVEER is interface for create/adding function for game thread
+// gCONVEER_ELEM struct used only in gCONVEER
 #pragma once
 
 #include <functional>

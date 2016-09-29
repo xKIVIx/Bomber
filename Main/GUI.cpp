@@ -4,13 +4,13 @@ mCONTROL::mCONTROL(HWND h_wnd)
 {
 	h_wnd_ = h_wnd;
 	SetMain();
-	doing_tread_ = std::thread(&mCONTROL::DoCommand, this);
+	doing_thread_ = std::thread(&mCONTROL::DoCommand, this);
 }
 
 mCONTROL::~mCONTROL()
 {
 	Stop();
-	doing_tread_.join();
+	doing_thread_.join();
 	delete g_control;
 }
 
