@@ -36,11 +36,9 @@ void mCONTROL::DoCommand()
 		{
 			tmp = do_list_.front();
 			do_list_.pop_front();
-			lock_do_list_.unlock();
 			Comand(tmp);
 		}
-		else
-			lock_do_list_.unlock();
+		lock_do_list_.unlock();
 	}
 }
 
@@ -59,6 +57,14 @@ void mCONTROL::Comand(char key)
 		if (key == 'e')
 		{
 			SetSecondMenu();
+		}
+		if (key == -1)
+		{
+			SetLose();
+		}
+		if (key == -2)
+		{
+			SetWin();
 		}
 		else
 			g_control->Command(0,key);

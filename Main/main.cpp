@@ -73,12 +73,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	}
 	case WM_WIN:
 	{
-		m_control->SetWin();
+		m_control->AddCom(-2);
 		break;
 	}
 	case WM_LOSE:
 	{
-		m_control->SetLose();
+		m_control->AddCom(-1);
 		break;
 	}
 	case WM_DESTROY:

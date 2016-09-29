@@ -310,6 +310,7 @@ void gCONTROL::CheckInFire()
 		Command(0, 'o');
 		return;
 	}
+	do_list_.AddFunc([this]() {this->CheckInFire(); });
 }
 
 bool gCONTROL::CheckStopStat()
