@@ -31,23 +31,13 @@ void mCONTROL::DoCommand()
 	char tmp;
 	while (!CheckStopState())
 	{
-		lock_do_list_.lock();
-		if (do_list_.size() > 0)
-		{
-			tmp = do_list_.front();
-			do_list_.pop_front();
-			Comand(tmp);
-		}
-		lock_do_list_.unlock();
+		do_list_.Do();
 	}
 }
-
 void mCONTROL::AddCom(char key)
 {
-	std::lock_guard <std::mutex> lock(lock_do_list_);
-	do_list_.push_back(key);
+	do_list_.AddFunc([this, key]() {Comand(key); });
 }
-
 void mCONTROL::Comand(char key)
 {
 	switch (now_state_)

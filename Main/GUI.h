@@ -12,6 +12,7 @@ enum MENU_STATE
 	WAIT,
 	END_GAME
 };
+
 class mCONTROL
 {
 public:
@@ -23,13 +24,6 @@ public:
 	void AddCom(char key);
 	void Comand(char key);
 	std::vector <vOBJECT> GetRendInfo();
-	void SetMain();
-	void SetSecondMenu();
-	void SetGame(char * host_name);
-	void SetLoad();
-	void SetWin();
-	void SetLose();
-	void Close();
 private:
 	class MENU_OBJECT
 	{
@@ -65,7 +59,14 @@ private:
 	gCONTROL * g_control = NULL;
 	MENU_STATE now_state_ = LOAD;
 	std::thread doing_thread_;
-	std::mutex lock_objects_, lock_do_list_ , lock_stop_stat_;
-	std::deque <char> do_list_;
+	std::mutex lock_objects_, lock_stop_stat_;
+	gCONVEER do_list_;
 	std::vector <MENU_OBJECT> menu_objects_;
+	void SetMain();
+	void SetSecondMenu();
+	void SetGame(char * host_name);
+	void SetLoad();
+	void SetWin();
+	void SetLose();
+	void Close();
 };

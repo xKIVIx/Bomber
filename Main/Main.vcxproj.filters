@@ -26,6 +26,7 @@
     <Library Include="..\Debug\vCONTROL.lib" />
     <Library Include="..\Debug\loger.lib" />
     <Library Include="..\Debug\gCONTROL.lib" />
+    <Library Include="..\Debug\CONVEER.lib" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">

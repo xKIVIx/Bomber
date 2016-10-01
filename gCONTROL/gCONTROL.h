@@ -8,8 +8,8 @@
 
 #include <gNET\gNET.h>
 
-#include "gCONVEER.h"
 #include "gOBJECTS.h"
+#include <CONVEER\gCONVEER.h>
 
 #ifdef gCONTROL_DLL
 #define gCONTROL_API _declspec(dllexport)

@@ -1,3 +1,4 @@
+#define CONVEER_DLL
 #include "gCONVEER.h"
 #include <time.h>
 gCONVEER::gCONVEER()

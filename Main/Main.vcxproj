@@ -161,6 +161,7 @@
     <ClInclude Include="names.h" />
   </ItemGroup>
   <ItemGroup>
+    <Library Include="..\Debug\CONVEER.lib" />
     <Library Include="..\Debug\gCONTROL.lib" />
     <Library Include="..\Debug\loger.lib" />
     <Library Include="..\Debug\vCONTROL.lib" />

@@ -1,7 +1,11 @@
 // gCONVEER is interface for create/adding function for game thread
 // gCONVEER_ELEM struct used only in gCONVEER
 #pragma once
-
+#ifdef CONVEER_DLL
+#define CONVEER_API _declspec(dllexport)
+#else
+#define CONVEER_API _declspec(dllimport)
+#endif
 #include <functional>
 #include <mutex>
 
@@ -11,7 +15,7 @@ struct gCONVEER_ELEM
 	gCONVEER_ELEM * next_ = NULL;
 	unsigned int dif_time_ = 0, init_time_ = 0;
 };
-class gCONVEER
+class CONVEER_API gCONVEER
 {
 public:
 	gCONVEER();
